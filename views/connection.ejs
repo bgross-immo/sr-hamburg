@@ -3,7 +3,7 @@
 <div class="sub"><%= x.role %><% if(x.faction){ %> · <%= x.faction %><% } %></div>
 <div class="panel">
   <div class="row" style="align-items:flex-start;gap:20px">
-    <% if(x.image){ %><img class="avatar" src="/uploads/<%= x.image %>"><% } %>
+    <% if(x.image){ var cs=x.image.indexOf('/static')===0?x.image:'/uploads/'+x.image; %><img class="avatar" src="<%= cs %>"><% } %>
     <dl class="kv" style="flex:1;min-width:280px">
       <dt>Einfluss</dt><dd><%= x.influence ? ('Stufe '+x.influence) : '—' %></dd>
       <dt>Ort</dt><dd><%= x.location || '—' %></dd>

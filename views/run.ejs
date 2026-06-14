@@ -14,8 +14,9 @@
 </div>
 <% function pills(str, cls){ if(!str) return ''; return str.split(/[·,;]/).map(x=>x.trim()).filter(Boolean).map(x=>'<span class="pill '+cls+'">'+x.replace(/</g,'&lt;')+'</span>').join(''); } %>
 <% if(r.actors){ %><h2>Beteiligte Akteure</h2><div class="pillrow"><%- pills(r.actors,'green') %></div><% } %>
-<% if((r.involved_connections) || (r.new_connections && r.new_connections!=='—')){ %>
-  <h2>Connections</h2><div class="pillrow"><%- pills(r.involved_connections,'') %><% if(r.new_connections && r.new_connections!=='—'){ %><%- pills(r.new_connections,'amber') %><% } %></div>
+<% function clink(arr, cls){ return (arr||[]).map(function(m){ return m.slug ? '<a class="pill '+cls+'" style="text-decoration:none" href="/connections/'+m.slug+'">'+m.name.replace(/</g,'&lt;')+'</a>' : '<span class="pill '+cls+'">'+m.name.replace(/</g,'&lt;')+'</span>'; }).join(''); } %>
+<% if((involvedLinks&&involvedLinks.length) || (newLinks&&newLinks.length)){ %>
+  <h2>Connections</h2><div class="pillrow"><%- clink(involvedLinks,'') %><%- clink(newLinks,'amber') %></div>
   <div class="dim mono" style="font-size:11px;margin-top:2px">grau = beteiligt · gelb = neu kennengelernt</div>
 <% } %>
 <h2>Bericht</h2>

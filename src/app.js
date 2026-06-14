@@ -197,7 +197,7 @@ app.post('/runs', requireSL, (req, res) => {
 });
 app.get('/runs/:slug', loadRun, (req, res) => {
   const r = req.run; r.imageList = JSON.parse(r.images || '[]');
-  res.render('run', { title: r.title, r, isOwner: !!(r.owner_id && r.owner_id === res.locals.user.id) });
+  res.render('run', { title: r.title, r, isOwner: !!(r.owner_id && r.owner_id === res.locals.user.id), involvedLinks: linkifyNames(r.involved_connections), newLinks: linkifyNames(r.new_connections) });
 });
 app.get('/runs/:slug/edit', loadRun, requireRunOwner, (req, res) => {
   const r = req.run; r.imageList = JSON.parse(r.images || '[]');

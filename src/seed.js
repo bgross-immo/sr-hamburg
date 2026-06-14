@@ -180,6 +180,7 @@ const connections = [
    'Wirbt Talente fuer Konzerne ab.','Bull',0],
   ['multitool-hacker','Multitools Hacker-Kontakt','Hacker','—','Hamburg (Matrix)','—','Kontakt (Name folgt)',
    'Half der Gruppe in „Das Auge des Sturms“, am Sperrwerk ins System einzugreifen — nur knapp gelungen.','Multitool',0],
+  ['van-den-berg','Herr van den Berg','Logistik-Manager (Saeder-Krupp)','Saeder-Krupp','Hamburg / Speicherstadt','gestresst; zahlt ueber Konzern-Kanaele','Auftraggeber','Heuerte die Runner in „Stille Nacht, toedliche Nacht“ an, die entfuehrte Luxus-Drohne „S-K Knecht Ruprecht 3000“ fuer seinen Sohn zu bergen.','',0],
   ['gregor','Pater Gregor','Priester / Weg der Reinheit','Weg der Reinheit','Steilshoop / Suppenkueche','wirkt aufrichtig hilfsbereit','Bekannt','Tauchte in „Kein Ort zum Heilen“ in Bisams Klinik auf, brachte Vorraete und half nach dem Angriff.','',0],
   ['groot','Konsul Juergen Groot','Konsul / Auftraggeber','','Elbphilharmonie / Speicherstadt','hanseatische Diskretion, zahlt gut','Auftraggeber','Heuerte die Runner in „Die undichte Stelle“ an, Dr. Foss zu extrahieren. Verachtet Proteus.','',0],
   ['juna','Juna','Wattsammler-Maedchen / Medium','Wattsammler','zuletzt bei Dr. Bisam','—','Schutzbefohlene','Junges Maedchen mit goldglimmenden Adern und einer Verbindung zu der singenden Kiste. In „Das Auge des Sturms“ gerettet, danach in Bisams Obhut.','',0],
@@ -217,7 +218,7 @@ const runs = [
     actors:'Bakhtari-Clan · Vory · unbekanntes Extraktionsteam',
     summary:`Der Morgen nach dem Sturm, Steilshoop. In Dr. Bisams Klinik trafen die Runner auf Ronin und auf Juna, die in der Nacht schwere Anfaelle gehabt hatte — ihr Nervensystem reagierte auf etwas, das nicht physisch war. Bisam brauchte dringend Neocortizin, ein seltenes Antikonvulsivum; sein Vorrat lag in einem von den Bakhtari kontrollierten ehemaligen Sanitaetsstuetzpunkt. Selbst hin konnte er nicht — also uebernahmen die Runner. Im Depot zwischen surrenden Kuehlkammern kreuzten sich ihre Wege mit der Vory, die dieselbe Idee hatte; man einigte sich pragmatisch, die Runner sicherten das Medikament. Doch als sie zurueckkamen, war ein Team gut ausgeruesteter Profis in Zivil dabei, Juna zu entfuehren — jemand mit Geld wollte das Maedchen. Die Runner schlugen den Zugriff zurueck, Bisam kam mit einem blauen Auge davon. Ueber die Triaden liessen sie einen Gefangenen verhoeren und entsorgen und brachten Juna in Sicherheit. Pater Gregor vom Weg der Reinheit, der gegenueber eine Suppenkueche betrieb, half nach dem Angriff aus und bot der Klinik seinen Schutz an.` },
   { slug:'retten-seebunker-kid', number:'', title:'Retten des reichen Kids aus dem Seebunker', date_played:'vor den HDL-Runs', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:5 },
-  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', participants:'Random, Seven Lifes, Ronin, Hi No', actors:'Saeder-Krupp · Ghul-Piraten (Kaeptn Klabauter) · HanSec', summary:`Weihnachten in Hamburg, saurer Schneeregen ueber dem historischen Weihnachtsmarkt in der Speicherstadt. Dort sprach Herr van den Berg die Runner an — ein voellig fertiger Logistik-Manager von Saeder-Krupp. Sein Sohn hatte sich den „S-K Knecht Ruprecht 3000“ gewuenscht, eine 2,50 m grosse Luxus-Drohne im Weihnachtsmann-Look; die Lieferung war im Hafen abgefangen worden. Auftrag: die Drohne bergen, mit Bonus fuer das unbeschaedigte Spielzeug im Sack. Die Spur fuehrte ueber Pier und Hafenueberwachung aufs Wasser — zu einem halb gesunkenen Frachter im Muehlenberger Loch, der „MS Hanse-Teufel“. Das Schiff war in der Hand von Ghul-Piraten unter „Kaeptn Klabauter“, einem Ghul-Adepten. Sie hatten die Drohne laienhaft umprogrammiert: Auf dem vereisten Oberdeck patrouillierte der „Cyber-Santa“, hielt jeden fuer „unartig“ und zitierte ueber Lautsprecher die Suenden der Runner, waehrend aus den dunklen Frachtraeumen die Ghule angriffen. Mitten im Gefecht tauchte HanSec auf, vom Laerm angelockt — es folgte die Flucht ueber die Elbe und durch die Fleete. Offiziell hiess es danach in den Nachrichten, Spezialeinheiten haetten einen Terroranschlag im Hafen vereitelt und Verdaechtige neutralisiert. Spaeter tauchte die Drohne in den Medien wieder auf — bei der Urban-Brawl-Mannschaft von van den Bergs Sohn.`, owner:'benjamin', sort:7 },
+  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', participants:'Random, Seven Lifes, Ronin, Hi No', new_connections:'Herr van den Berg', actors:'Saeder-Krupp · Ghul-Piraten (Kaeptn Klabauter) · HanSec', summary:`Weihnachten in Hamburg, saurer Schneeregen ueber dem historischen Weihnachtsmarkt in der Speicherstadt. Dort sprach Herr van den Berg die Runner an — ein voellig fertiger Logistik-Manager von Saeder-Krupp. Sein Sohn hatte sich den „S-K Knecht Ruprecht 3000“ gewuenscht, eine 2,50 m grosse Luxus-Drohne im Weihnachtsmann-Look; die Lieferung war im Hafen abgefangen worden. Auftrag: die Drohne bergen, mit Bonus fuer das unbeschaedigte Spielzeug im Sack. Die Spur fuehrte ueber Pier und Hafenueberwachung aufs Wasser — zu einem halb gesunkenen Frachter im Muehlenberger Loch, der „MS Hanse-Teufel“. Das Schiff war in der Hand von Ghul-Piraten unter „Kaeptn Klabauter“, einem Ghul-Adepten. Sie hatten die Drohne laienhaft umprogrammiert: Auf dem vereisten Oberdeck patrouillierte der „Cyber-Santa“, hielt jeden fuer „unartig“ und zitierte ueber Lautsprecher die Suenden der Runner, waehrend aus den dunklen Frachtraeumen die Ghule angriffen. Mitten im Gefecht tauchte HanSec auf, vom Laerm angelockt — es folgte die Flucht ueber die Elbe und durch die Fleete. Offiziell hiess es danach in den Nachrichten, Spezialeinheiten haetten einen Terroranschlag im Hafen vereitelt und Verdaechtige neutralisiert. Spaeter tauchte die Drohne in den Medien wieder auf — bei der Urban-Brawl-Mannschaft von van den Bergs Sohn.`, owner:'benjamin', sort:7 },
   { slug:'vier-naegel', number:'', title:'4 Naegel stehlen', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:40 },
   { slug:'zenzus-retten', number:'', title:'Zenzus retten', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:50 },
   { slug:'klaerwerk-toxischer-geist', number:'', title:'Klaerwerk - Toxischer Geist', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:60 },
@@ -234,6 +235,7 @@ for (const r of runs) {
   _ri++;
   insRun.run(...rcols.map(c => (r[c] == null ? '' : r[c])), oid, so);
   if (r.participants) db.prepare("UPDATE runs SET participants=? WHERE slug=? AND (participants IS NULL OR participants='')").run(r.participants, r.slug);
+  if (r.new_connections) db.prepare("UPDATE runs SET new_connections=? WHERE slug=? AND (new_connections IS NULL OR new_connections='')").run(r.new_connections, r.slug);
   bfRun.run(r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', oid, r.slug);
 }
 
@@ -305,9 +307,11 @@ if (db.prepare('SELECT COUNT(*) c FROM factions').get().c === 0)
 
 
 // ---------- Connections: Einflussstufen (aus den Charakterboegen) ----------
-const infl = { 'dr-bisam':'4','svenja':'4','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5' };
+const infl = { 'dr-bisam':'4','svenja':'4','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5','van-den-berg':'unbekannt' };
 const bfInf = db.prepare('UPDATE connections SET influence=COALESCE(influence,?) WHERE slug=?');
 for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
+const bfConnImg = db.prepare('UPDATE connections SET image=COALESCE(image,?) WHERE slug=?');
+bfConnImg.run('/static/img/conns/van-den-berg.png','van-den-berg');
 
 // ---------- LOCATIONS (Spielerwissen, spoilerfrei) ----------
 const locations = [
@@ -317,12 +321,15 @@ const locations = [
   ['flak-turm','Flak-Turm „Trutzburg“','Nordsee / Watt','Alter Flakturm','Wattsammler-Basis','Aus dem Wasser ragender Betonturm; in „Das Auge des Sturms“ Schauplatz des Korsaren-Angriffs.','Olaf „Schlickteufel“',40],
   ['steilshoop','Steilshoop','Bezirk Wandsbek','Hochhaus-Kiez','Territorium','Grauer Plattenbau-Kiez; Platzhirsch ist der Bakhtari-Clan. Bisams Revier.','Bakhtari-Clan',50],
   ['sanitaetsstuetzpunkt','Ehemaliger Sanitaetsstuetzpunkt','Steilshoop','Aufgegebenes Depot','Bakhtari-Lager','Notversorgung nach der Schwarzen Flut, heute Bakhtari-Kuehllager („Kein Ort zum Heilen“).','—',60],
+  ['ms-hanse-teufel','MS Hanse-Teufel','Muehlenberger Loch (Elbe)','Gestrandeter Frachter','Schauplatz','Halb gesunkener Schuettgutfrachter im Schlick; in „Stille Nacht, toedliche Nacht“ Versteck von Ghul-Piraten und der entfuehrten Drohne.','—',70],
   ['ohlsdorfer-friedhof','Ohlsdorfer Friedhof','Ohlsdorf','Friedhof','Neutraler Boden','Weitlaeufiges, stilles Reich; Treffpunkt im Schatten.','—',80],
   ['elbphilharmonie','Elbphilharmonie','HafenCity','Wahrzeichen / VIP','Treffpunkt der feinen Leute','Glaeserner Elfenbeinturm ueber dem Hafen; Schauplatz des Auftrags in „Die undichte Stelle“.','—',90],
 ];
 const insLoc = db.prepare(`INSERT OR IGNORE INTO locations (slug,name,area,type,status,description,notable,sort) VALUES (?,?,?,?,?,?,?,?)`);
 if (db.prepare('SELECT COUNT(*) c FROM locations').get().c === 0)
   for (const l of locations) insLoc.run(...l);
+const bfLocImg = db.prepare('UPDATE locations SET image=COALESCE(image,?) WHERE slug=?');
+bfLocImg.run('/static/img/locations/ms-hanse-teufel.jpg','ms-hanse-teufel');
 
 try { db.prepare('DELETE FROM locations WHERE slug=?').run('schwarzer-garten'); } catch (e) {}
 try { db.prepare('DELETE FROM factions WHERE slug=?').run('aeltermaenner'); } catch (e) {}
