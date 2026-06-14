@@ -118,8 +118,8 @@ app.get('/characters/:slug', loadChar, (req, res) => {
 app.post('/characters/:slug', loadChar, (req, res) => {
   if (!mayEditChar(req, res)) return res.status(403).render('error', { title: 'Kein Zugriff', msg: 'Nur SL oder der eigene Spieler.' });
   const b = req.body;
-  db.prepare('UPDATE characters SET name=?,metatype=?,archetype=?,johnson_dossier=?,highlight_skills=?,sl_summary=?,background=? WHERE slug=?')
-    .run(b.name || req.char.name, b.metatype || '', b.archetype || '', b.johnson_dossier || '', b.highlight_skills || '', b.sl_summary || '', b.background || '', req.char.slug);
+  db.prepare('UPDATE characters SET name=?,metatype=?,archetype=?,johnson_dossier=?,highlight_skills=?,sl_summary=?,background=?,background_sl=? WHERE slug=?')
+    .run(b.name || req.char.name, b.metatype || '', b.archetype || '', b.johnson_dossier || '', b.highlight_skills || '', b.sl_summary || '', b.background || '', b.background_sl || '', req.char.slug);
   res.redirect('/characters/' + req.char.slug);
 });
 app.post('/characters/:slug/sheet', loadChar, uploadDoc.single('sheet'), (req, res) => {
@@ -228,6 +228,44 @@ app.post('/sl/meta/:slug', requireSL, (req, res) => {
   db.prepare('UPDATE metaplot SET title=?,body=?,updated_at=? WHERE slug=?')
     .run(req.body.title, req.body.body, new Date().toISOString(), req.params.slug);
   res.redirect('/sl');
+});
+app.get('/sl/export.md', requireSL, (req, res) => {
+  const e = s => (s == null ? '' : String(s));
+  let o = '# Schattennetz Hamburg — Datenabzug\n\nStand: ' + new Date().toISOString().slice(0,16).replace('T',' ') + '\n\n';
+  o += '## Charaktere\n\n';
+  for (const c of db.prepare('SELECT * FROM characters ORDER BY sort').all()) {
+    o += `### ${c.name}  (Spieler: ${e(c.player)})\n`;
+    o += `- Metatyp: ${e(c.metatype)} | Archetyp: ${e(c.archetype)}\n`;
+    if (c.magic) o += `- Magie/Resonanz: ${e(c.magic)}\n`;
+    if (c.profile) o += `- Profil: ${e(c.profile)}\n`;
+    if (c.signature) o += `- Signature: ${e(c.signature)}\n`;
+    if (c.hooks) o += `- Hooks: ${e(c.hooks)}\n`;
+    if (c.contacts) o += `- Kontakte (Bogen): ${e(c.contacts)}\n`;
+    if (c.highlight_skills) o += `- Highlight-Skills: ${e(c.highlight_skills)}\n`;
+    if (c.johnson_dossier) o += `- Johnson-Dossier: ${e(c.johnson_dossier)}\n`;
+    if (c.background) o += `- Hintergrund (allgemein): ${e(c.background)}\n`;
+    if (c.background_sl) o += `- Hintergrund (nur SL): ${e(c.background_sl)}\n`;
+    if (c.sl_summary) o += `- SL-Zusammenfassung: ${e(c.sl_summary)}\n`;
+    const lg = db.prepare('SELECT * FROM char_logs WHERE char_slug=? ORDER BY created_at').all(c.slug);
+    if (lg.length) { o += `- Logs:\n`; for (const l of lg) o += `  - [${e(l.author)} ${e((l.created_at||'').slice(0,10))}] ${e(l.title)}: ${e(l.body)}\n`; }
+    o += '\n';
+  }
+  o += '## Connections\n\n';
+  for (const x of db.prepare('SELECT * FROM connections ORDER BY name').all()) {
+    o += `### ${x.name} — ${e(x.role)}\n- Fraktion: ${e(x.faction)} | Ort: ${e(x.location)} | Status: ${e(x.status)}\n- Bekannt bei: ${e(x.shared_by)}\n`;
+    if (x.preferences) o += `- Vorlieben: ${e(x.preferences)}\n`;
+    if (x.history) o += `- Historie: ${e(x.history)}\n`;
+    o += '\n';
+  }
+  o += '## Runs\n\n';
+  for (const r of db.prepare('SELECT * FROM runs ORDER BY sort').all()) {
+    o += `### ${e(r.number)} — ${e(r.title)}\n- Teilnehmer: ${e(r.participants)}\n- Ort: ${e(r.location)} | Zeit: ${e(r.time_from)} – ${e(r.time_to)} (${e(r.date_played)})\n- Karma: ${e(r.karma)} | Geld: ${e(r.nuyen)} | Beute: ${e(r.loot)}\n- Akteure: ${e(r.actors)}\n- Connections beteiligt: ${e(r.involved_connections)} | neu: ${e(r.new_connections)}\n- Bericht: ${e(r.summary)}\n\n`;
+  }
+  o += '## Metaplot (HDL) — nur SL\n\n';
+  for (const m of db.prepare('SELECT * FROM metaplot ORDER BY owner').all()) o += `### [${e(m.code)}] ${e(m.title)} (${e(m.owner)})\n${e(m.body)}\n\n`;
+  res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="schattennetz-export-' + new Date().toISOString().slice(0,10) + '.md"');
+  res.send(o);
 });
 // SL: upload image for connection / character
 app.post('/sl/img/:type/:slug', requireSL, upload.single('image'), (req, res) => {
