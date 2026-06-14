@@ -78,14 +78,24 @@ const characters = [
    '—','Bogen folgt.','—','Connection: ein Hacker-Kontakt (in Run 1 am Sperrwerk genutzt).','Hacker-Kontakt (Name folgt)',40],
   ['sparks','Sparks','Max','Hobgoblin','Chaosmagier',
    'Erwacht (Chaosmagier).','War in der Clubnacht; kennt Multitool. Bogen folgt.','—','—','Multitool',41],
-  ['ronin','Ronin','Max','—','—',
-   '—','In Bisams Klinik (Run 2) dazugestoßen. Bogen folgt.','—','—','—',42],
+  ['ronin','Ronin','Max','Mensch (schwer cybered, Essenz ~2,2)','Street Samurai',
+   'Mundan; stark verkybert.',
+   'Herrenloser Samurai (Kaori Sato). Schnell und toedlich im Nahkampf und mit Schusswaffen, Akrobatik und Infiltration. Lebt auf einem Hotelschiff. In Run 2 in Bisams Klinik dazugestossen.',
+   'Klingenwaffen + Ares Crusader II u.a.; mehrere Initiative-Durchgaenge.',
+   'Werte aus handschriftlichem Bogen — Details ggf. von Max bestaetigen.',
+   'Mehrere: Schieber, Waffenhaendler, Rettungssanitaeter, Fixerin (Loyalitaet/Einfluss notiert)',42],
+  ['patchdoc','PatchDoc','Max','Xenosapient (erwachte KI)','Magischer Strassendoc + Tech/Decker',
+   'Erwacht (Magie 6).',
+   'Magischer Strassendoc mit Tech-/Decker-Schlag: Medizin, Erste Hilfe, Computer/Hardware/Software, Hacking, eigenes Cyberdeck. Heiler/Support + Technik.',
+   'Cyberdeck, Fahrzeug.',
+   'Eine erwachte KI als Strassendoc. Magische Tradition und Kontakte noch offen.',
+   '—',44],
   ['random','Random','Moritz','—','—',
    '—','Bogen folgt.','—','—','—',43],
 ];
 const insChar = db.prepare(`INSERT OR IGNORE INTO characters (slug,name,player,metatype,archetype,magic,profile,signature,hooks,contacts,sort) VALUES (?,?,?,?,?,?,?,?,?,?,?)`);
-if (db.prepare('SELECT COUNT(*) c FROM characters').get().c === 0)
-  for (const c of characters) insChar.run(...c);
+const upChar = db.prepare(`UPDATE characters SET name=?,player=?,metatype=?,archetype=?,magic=?,profile=?,signature=?,hooks=?,contacts=?,sort=? WHERE slug=?`);
+for (const c of characters){ insChar.run(...c); upChar.run(c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[0]); }
 
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
 const connections = [
