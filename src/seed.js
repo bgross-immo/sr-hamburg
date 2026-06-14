@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const db = require('./db');
 
-const PW = process.env.SEED_DEFAULT_PASSWORD || 'Schatten2078';
+const PW = process.env.SEED_DEFAULT_PASSWORD || 'hamburg';
 const hash = bcrypt.hashSync(PW, 10);
 const now = () => new Date().toISOString();
 
@@ -15,7 +15,8 @@ const users = [
   ['moritz', 'Moritz', 'player'],
 ];
 const insUser = db.prepare(`INSERT OR IGNORE INTO users (username, display_name, role, password_hash, must_change) VALUES (?,?,?,?,1)`);
-for (const [u, d, r] of users) insUser.run(u, d, r, hash);
+const resetUser = db.prepare(`UPDATE users SET password_hash=?, role=? WHERE username=? AND must_change=1`);
+for (const [u, d, r] of users) { insUser.run(u, d, r, hash); resetUser.run(hash, r, u); }
 
 // ---------- CHARACTERS ----------
 const characters = [
