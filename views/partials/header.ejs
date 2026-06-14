@@ -14,7 +14,8 @@
      map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
      note:'<path d="M6 4h12v16l-4-3H6z"/><path d="M9 9h6M9 13h4"/>',
      user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
-     lock:'<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'
+     lock:'<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+     shield:'<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/>'
    }; return I[n]||''; }
 %>
 <header class="top"><div class="topbar">
@@ -23,7 +24,7 @@
 </div></header>
 <div class="layout">
   <aside class="sidebar"><nav>
-    <% const items=[['/','Knoten','user' && 'home'],['/characters','Runner','user'],['/runs','Logbuch','run'],['/timeline','Zeitleiste','clock'],['/connections','Kontakte','net'],['/maps','Karten','map'],['/notes','Notizen','note']];
+    <% const items=[['/','Knoten','user' && 'home'],['/characters','Runner','user'],['/runs','Logbuch','run'],['/timeline','Zeitleiste','clock'],['/connections','Kontakte','net'],['/factions','Fraktionen','shield'],['/maps','Karten','map'],['/notes','Notizen','note']];
        items.forEach(it=>{ const act=(it[0]==='/'? path==='/' : path.indexOf(it[0])===0); %>
       <a href="<%= it[0] %>" class="<%= act?'active':'' %>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><%- ic(it[2]) %></svg><%= it[1] %></a>
     <% }); %>

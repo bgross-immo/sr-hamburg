@@ -65,9 +65,11 @@ try {
 // --- Migration: erweiterte Charakter-Felder + Char-Logs ---
 try {
   const cc = db.prepare("PRAGMA table_info(characters)").all().map(c => c.name);
-  const addc = { owner_id:'INTEGER', johnson_dossier:'TEXT', highlight_skills:'TEXT', sl_summary:'TEXT', background:'TEXT', background_sl:'TEXT', sheet:'TEXT' };
+  const addc = { owner_id:'INTEGER', johnson_dossier:'TEXT', highlight_skills:'TEXT', sl_summary:'TEXT', background:'TEXT', background_sl:'TEXT', sheet:'TEXT', gallery:'TEXT' };
   for (const [c,t] of Object.entries(addc)) if (!cc.includes(c)) db.exec(`ALTER TABLE characters ADD COLUMN ${c} ${t}`);
 } catch (e) { console.error('char migration', e); }
+db.exec(`CREATE TABLE IF NOT EXISTS factions (
+  id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, category TEXT, status TEXT, description TEXT, notable_members TEXT, image TEXT, sort INTEGER DEFAULT 100);`);
 db.exec(`CREATE TABLE IF NOT EXISTS char_logs (
   id INTEGER PRIMARY KEY, char_slug TEXT NOT NULL, user_id INTEGER, author TEXT, title TEXT, body TEXT, created_at TEXT);`);
 

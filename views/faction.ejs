@@ -1,0 +1,30 @@
+<%- include('partials/header',{title}) %>
+<div class="dossier-tag">FRAKTION</div>
+<h1 style="margin-top:4px"><%= f.name %></h1>
+<div class="sub"><%= f.category||'' %></div>
+<div class="panel">
+  <div class="row" style="align-items:flex-start;gap:20px">
+    <% if(f.image){ var fs=f.image.indexOf('/static')===0?f.image:'/uploads/'+f.image; %><img class="avatar" src="<%= fs %>"><% } %>
+    <dl class="kv" style="flex:1;min-width:260px">
+      <dt>Kategorie</dt><dd><%= f.category||'—' %></dd>
+      <dt>Status / Beziehung</dt><dd><%= f.status||'—' %></dd>
+      <% if(f.notable_members){ %><dt>Bekannte Köpfe</dt><dd><%= f.notable_members %></dd><% } %>
+    </dl>
+  </div>
+  <% if(f.description){ %><div style="white-space:pre-line;margin-top:12px;font-size:14.5px"><%= f.description %></div><% } %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel"><div class="meta mono" style="color:var(--red)">SL · bearbeiten</div>
+  <form method="post" action="/sl/faction/<%= f.slug %>">
+    <div class="row"><div style="flex:2"><label>Name</label><input name="name" value="<%= f.name %>"></div><div style="flex:1"><label>Kategorie</label><input name="category" value="<%= f.category||'' %>"></div></div>
+    <label>Status / Beziehung</label><input name="status" value="<%= f.status||'' %>">
+    <label>Bekannte Köpfe</label><input name="notable_members" value="<%= f.notable_members||'' %>">
+    <label>Beschreibung (Spielersicht — keine Spoiler)</label><textarea name="description" rows="5"><%= f.description||'' %></textarea>
+    <div style="margin-top:12px"><button class="btn">Speichern</button></div>
+  </form>
+  <hr class="sep">
+  <form method="post" action="/sl/faction/<%= f.slug %>/img" enctype="multipart/form-data" class="row"><input type="file" name="image" accept="image/*" style="max-width:280px"><button class="btn ghost">Bild/Logo hochladen</button></form>
+</div>
+<% } %>
+<p style="margin-top:14px"><a href="/factions">&larr; Alle Fraktionen</a></p>
+<%- include('partials/footer') %>

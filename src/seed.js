@@ -76,6 +76,8 @@ const characters = [
   // Stubs (Bögen folgen)
   ['multitool','Multitool','Patric','—','—',
    '—','Bogen folgt.','—','Connection: ein Hacker-Kontakt (in Run 1 am Sperrwerk genutzt).','Hacker-Kontakt (Name folgt)',40],
+  ['wardoc','WarDoc','Patric','Ork','Combat Medic / Strassendoc',
+   'Mundan (vermutlich).','Orkischer Sanitaeter, der das Team im Feld zusammenflickt. Robust und ruppig. Bogen folgt.','—','Details/Bogen folgen.','—',46],
   ['sparks','Sparks','Max','Hobgoblin','Chaosmagier',
    'Erwacht (Chaosmagier).','War in der Clubnacht; kennt Multitool. Bogen folgt.','—','—','Multitool',41],
   ['ronin','Ronin','Max','Mensch (schwer cybered, Essenz ~2,2)','Street Samurai',
@@ -117,14 +119,31 @@ const dossiers = {
   'ronin':['Schwer verkyberter Strassensamurai. Schnell, toedlich mit Klinge und Pistole. Wenig Worte.','Klingen · Pistolen · Akrobatik · Infiltration'],
   'patchdoc':['Erwachter Strassendoc mit Tech-Schlag — flickt Koerper und Code gleichermassen. Ungewoehnliche Erscheinung.','Medizin · Magie · Computer/Hardware · Hacking'],
   'sparks':['Hobgoblin-Chaosmagier, unberechenbar. War schon vor dem Job auf der Tanzflaeche.','Chaosmagie · Zauber'],
+  'wardoc':['Orkischer Combat-Medic. Holt Leute aus dem Feuer und flickt sie wieder zusammen. Robust, ruppig, zuverlaessig.','Medizin · Erste Hilfe · Biotech · Robust'],
 };
-const portraits = new Set(['al-be-rich','buffy','bull','ermina','kapitaen-flint','kiezchronist','mondkind','seven-lifes','walpurga']);
-const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?) WHERE slug=?');
+const portraitData = {
+  'al-be-rich':['/static/img/chars/al-be-rich.jpg'],
+  'buffy':['/static/img/chars/buffy.jpg','/static/img/chars/buffy-2.jpg'],
+  'bull':['/static/img/chars/bull.jpg'],
+  'ermina':['/static/img/chars/ermina.jpg'],
+  'kapitaen-flint':['/static/img/chars/kapitaen-flint.jpg'],
+  'kiezchronist':['/static/img/chars/kiezchronist.jpg'],
+  'mondkind':['/static/img/chars/mondkind.jpg'],
+  'seven-lifes':['/static/img/chars/seven-lifes.jpg'],
+  'walpurga':['/static/img/chars/walpurga.jpg'],
+  'ronin':['/static/img/chars/ronin.jpg'],
+  'wardoc':['/static/img/chars/wardoc.jpg','/static/img/chars/wardoc-2.jpg'],
+};
+let slSum = {};
+try { slSum = require('./sl_summaries.json'); } catch (e) { console.error('sl_summaries', e); }
+const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?), gallery=COALESCE(gallery,?), sl_summary=COALESCE(sl_summary,?) WHERE slug=?');
 for (const c of characters) {
   const oid = userByName[(c[2]||'').toLowerCase()] || null;
   const d = dossiers[c[0]] || [null,null];
-  const img = portraits.has(c[0]) ? ('/static/img/chars/'+c[0]+'.jpg') : null;
-  bfChar.run(oid, d[0], d[1], img, c[0]);
+  const arr = portraitData[c[0]] || null;
+  const img = arr ? arr[0] : null;
+  const gal = arr ? JSON.stringify(arr) : null;
+  bfChar.run(oid, d[0], d[1], img, gal, slSum[c[0]]||null, c[0]);
 }
 
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
@@ -168,14 +187,14 @@ const runs = [
   { slug:'run-0', number:'Run 0', title:'Die undichte Stelle', date_played:'Vor dem Orkan „Njord“',
     participants:'Random, Multitool, Mondkind',
     location:'HafenCity · Wilhelmsburg · St. Pauli', time_from:'früher Abend', time_to:'Nacht (kurz vor der Flut)',
-    karma:'', nuyen:'2.500¥ pro Person (Ältermänner)', loot:'—',
+    karma:'6', nuyen:'2.500¥ pro Person (Ältermänner)', loot:'—',
     new_connections:'Konsul Jürgen Groot, Dr. Arvid Foss', involved_connections:'Konsul Jürgen Groot',
     actors:'Ältermänner · Proteus (Eingreifteam) · Tech-Squatter („Rust-Punx“)',
     summary:`Konsul Groot heuerte die Runner in der Elbphilharmonie an, einen abtrünnigen Proteus-Analysten — Dr. Arvid Foss — aus einem stillgelegten Pumpwerk in Wilhelmsburg zu holen, bevor der Konzern ihn zum Schweigen brachte. Während draußen die Flut stieg, verteidigten die Runner Foss gegen ein Proteus-Eingreifteam, töteten mehrere der Operativen und brachten ihn samt seinem Datenchip sicher zum „Klabautermann“. Auf dem Chip ein Codewort: „Medusa“. Beim Katerfrühstück im Diner stießen Sparks und Bull dazu — und die Runde war sich einig: Man kann die Menschen nicht einfach absaufen lassen.` },
   { slug:'run-1', number:'Run 1', title:'Das Auge des Sturms', date_played:'Orkan „Njord“, Nacht',
     participants:'Random, Multitool, Mondkind, Bull, Sparks',
     location:'St. Pauli · Finkenwerder · Nordsee/Watt · Flak-Turm', time_from:'Abend ~20:00', time_to:'tiefe Nacht ~23:45',
-    karma:'', nuyen:'3.000¥ pro Person (Likedeeler/Svenja)', loot:'—',
+    karma:'12', nuyen:'3.000¥ pro Person (Likedeeler/Svenja)', loot:'—',
     new_connections:'Käpt’n Svenja, Olaf „Schlickteufel“, Dr. Bisam, Juna',
     involved_connections:'Käpt’n Svenja',
     actors:'Likedeeler (Svenja & Vester) · Rote Korsaren · Wattsammler · ein Wasser-Avatar · Proteus (Drohne/Beobachter)',
@@ -183,20 +202,30 @@ const runs = [
   { slug:'run-2', number:'Run 2', title:'Kein Ort zum Heilen', date_played:'Der Morgen nach dem Sturm',
     participants:'Bull, Mondkind, Ronin, Multitool',
     location:'Steilshoop', time_from:'Morgen nach dem Sturm', time_to:'später Vormittag',
-    karma:'10 (Teil 2)',
+    karma:'16 gesamt (Teil 1: 6 · Teil 2: 10)',
     nuyen:'Loot-Verkauf 3.000¥ gesamt (je 1.000¥ an Bull, Mondkind, Ronin); Bisam-Lohn abgelehnt; −5.000¥ an die Triaden (Verhör/Entsorgung)',
     loot:'Medikament (Auftragsziel) + verkaufter Depot-Loot',
     new_connections:'—', involved_connections:'Dr. Bisam',
     actors:'Bakhtari-Clan · Vory · unbekanntes Extraktionsteam',
     summary:`In Dr. Bisams Klinik in Steilshoop trafen die Runner auf Ronin und übernahmen einen Auftrag: dringend benötigtes Medikament für die kranke Juna aus einem von den Bakhtari kontrollierten Depot beschaffen. Beim Zugriff kreuzten sich ihre Wege mit der Vory. Als sie zurückkamen, war ein Team gut ausgerüsteter Profis dabei, Juna aus der Klinik zu entführen — jemand mit Geld will das Mädchen. Die Runner schlugen den Zugriff zurück, verhörten und „entsorgten“ über die Triaden einen Gefangenen und brachten Juna in Sicherheit.` },
+  { slug:'retten-seebunker-kid', number:'', title:'Retten des reichen Kids aus dem Seebunker', date_played:'vor den HDL-Runs', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:5 },
+  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', summary:'Weihnachtsrun. Details werden von der Spielleitung (Benjamin) ergaenzt.', owner:'benjamin', sort:7 },
+  { slug:'vier-naegel', number:'', title:'4 Naegel stehlen', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:40 },
+  { slug:'zenzus-retten', number:'', title:'Zenzus retten', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:50 },
+  { slug:'klaerwerk-toxischer-geist', number:'', title:'Klaerwerk - Toxischer Geist', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:60 },
+  { slug:'untertauchen-klaerwerk', number:'', title:'Untertauchen nach dem Klaerwerk', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:65 },
 ];
 const rcols = ['slug','number','title','date_played','participants','location','time_from','time_to','karma','nuyen','loot','new_connections','involved_connections','actors','summary'];
 const insRun = db.prepare(`INSERT OR IGNORE INTO runs (${rcols.join(',')},images,owner_id,sort) VALUES (${rcols.map(()=>'?').join(',')},'[]',?,?)`);
 const bfRun = db.prepare(`UPDATE runs SET location=COALESCE(location,?), time_from=COALESCE(time_from,?), time_to=COALESCE(time_to,?), karma=COALESCE(karma,?), nuyen=COALESCE(nuyen,?), loot=COALESCE(loot,?), new_connections=COALESCE(new_connections,?), involved_connections=COALESCE(involved_connections,?), actors=COALESCE(actors,?), owner_id=COALESCE(owner_id,?) WHERE slug=?`);
+const uid = (un) => (db.prepare('SELECT id FROM users WHERE username=?').get(un) || {}).id || benId;
 let _ri = 0;
 for (const r of runs) {
-  insRun.run(...rcols.map(c => r[c]), benId, 10 + (_ri++ * 10));
-  bfRun.run(r.location, r.time_from, r.time_to, r.karma, r.nuyen, r.loot, r.new_connections, r.involved_connections, r.actors, benId, r.slug);
+  const oid = uid(r.owner || 'benjamin');
+  const so = (r.sort != null) ? r.sort : 10 + (_ri * 10);
+  _ri++;
+  insRun.run(...rcols.map(c => (r[c] == null ? '' : r[c])), oid, so);
+  bfRun.run(r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', oid, r.slug);
 }
 
 // ---------- TIMELINE ----------
@@ -232,6 +261,34 @@ const maps = [
 const insMap = db.prepare(`INSERT OR IGNORE INTO maps (slug,title,image,note,sort) VALUES (?,?,?,?,?)`);
 if (db.prepare('SELECT COUNT(*) c FROM maps').get().c === 0)
   for (const m of maps) insMap.run(...m);
+
+
+// ---------- FRAKTIONEN (Spielerwissen, spoilerfrei) ----------
+const factions = [
+  ['likedeeler','Likedeeler','Piraten / Freibeuter','Gemischt',
+   'Die freien Schiffer und Schmuggler der Elbe. Gespalten: ein traditioneller Fluegel um Kaeptn Svenja haelt zur Stadt, andere wie Jens Vester spielen ihr eigenes Spiel.','Kaeptn Svenja, Jens „Haifisch“ Vester, Warentester Klaas',10],
+  ['aeltermaenner','Die Aeltermaenner','Hanseatische Elite','Auftraggeber',
+   'Die alte Hamburger Garde — Politik, Geld, Diskretion. Heuern die Runner ueber Mittelsmaenner an und zahlen gut.','Konsul Juergen Groot, Senator Julian von Ahrensburg',20],
+  ['proteus','Proteus','Konzern (AA)','Undurchsichtig / gegnerisch',
+   'Ein verschwiegener Meerestechnik-Konzern mit Arkologien in der Nordsee. Die Runde geriet bereits mit Proteus aneinander. Was sie wirklich vorhaben, ist offen.','—',30],
+  ['mandelzirkel','Mandelzirkel','Spirituelle Gemeinschaft','Verbuendet / neutral',
+   'Ein Bund von Geisterkundigen und Voodoo-Praktizierenden, der fuer das spirituelle Gleichgewicht der Stadt einsteht.','Mama Mamba',40],
+  ['wattsammler','Wattsammler','Kommune','Neutral / schutzbeduerftig',
+   'Eine raue Gemeinschaft, die im Watt von dem lebt, was die Gezeiten freigeben. In Run 1 vom Flak-Turm gerettet.','Olaf „Schlickteufel“, Juna',50],
+  ['rote-korsaren','Rote Korsaren','Piraten','Feindlich',
+   'Brutale, drogengepushte Freibeuter, die in fremden Revieren wildern. In Run 1 stuermten sie den Flak-Turm.','Der Maat (gefallen)',60],
+  ['vory','Vory v Zakone','Syndikat','Neutral (pragmatisch)',
+   'Russisches Verbrechersyndikat, kontrolliert Logistik und Schwarzmarkt. In Run 2 kreuzten sich die Wege im Depot.','—',70],
+  ['triaden','Triaden','Syndikat','Dienstleister (neutral)',
+   'Spezialisiert auf diskrete Dienste, Artefakte und Schmuggel. In Run 2 fuer Verhoer und Entsorgung engagiert.','—',80],
+  ['bakhtari-clan','Bakhtari-Clan','Lokaler Clan','Neutral (territorial)',
+   'Beherrscht Teile von Steilshoop; pragmatisch, solange man sein Revier respektiert.','Cihan Bakhtari',90],
+  ['weg-der-reinheit','Weg der Reinheit','Buergerbewegung','Hilfsbereit (Stand des Wissens)',
+   'Eine quasi-religioese Wohltaetigkeitsbewegung, die nach dem Sturm Feldlazarette und Suppenkuechen betreibt. Pater Gregor gilt als Wohltaeter.','Pater Gregor',100],
+];
+const insFac = db.prepare(`INSERT OR IGNORE INTO factions (slug,name,category,status,description,notable_members,sort) VALUES (?,?,?,?,?,?,?)`);
+if (db.prepare('SELECT COUNT(*) c FROM factions').get().c === 0)
+  for (const f of factions) insFac.run(...f);
 
 console.log('Seed OK. Default-Passwort fuer alle Logins:', PW);
 console.log('Logins:', users.map(u=>u[0]).join(', '));

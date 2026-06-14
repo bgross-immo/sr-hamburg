@@ -7,7 +7,6 @@
   <div class="row" style="align-items:flex-start;gap:22px">
     <div>
       <% if(c.image){ var cs=c.image.indexOf('/static')===0?c.image:'/uploads/'+c.image; %><img class="avatar char-avatar" style="width:160px;height:160px" src="<%= cs %>"><% } else { %><div class="avatar noimg" style="width:160px;height:160px"></div><% } %>
-      <% if(canEdit){ %><form method="post" action="/characters/<%= c.slug %>/image" enctype="multipart/form-data" style="margin-top:8px"><input type="file" name="image" accept="image/*" style="font-size:11px"><button class="btn ghost" style="padding:6px 10px;margin-top:5px">Bild setzen</button></form><% } %>
     </div>
     <div style="flex:1;min-width:260px">
       <h2 style="margin-top:0">Johnson-Dossier</h2>
@@ -15,6 +14,27 @@
       <% if(c.highlight_skills){ %><div class="pillrow" style="margin-top:6px"><% c.highlight_skills.split(/[·,;]/).map(x=>x.trim()).filter(Boolean).forEach(x=>{ %><span class="pill green"><%= x %></span><% }); %></div><% } %>
     </div>
   </div>
+</div>
+
+<h2>Bilder</h2>
+<div class="panel">
+  <% if(galleryArr.length){ %><div class="gallery">
+  <% galleryArr.forEach(g=>{ var gs=g.indexOf('/static')===0?g:'/uploads/'+g; %>
+    <div>
+      <a href="<%= gs %>" target="_blank"><img class="char-gal" src="<%= gs %>" style="<%= g===c.image?'outline:2px solid var(--green);outline-offset:-2px;':'' %>"></a>
+      <% if(g===c.image){ %><div class="dim mono" style="font-size:10px;color:var(--green)">Titelbild</div><% } %>
+      <% if(canEdit){ %><div class="row" style="gap:4px;margin-top:3px">
+        <% if(g!==c.image){ %><form method="post" action="/characters/<%= c.slug %>/title" style="margin:0"><input type="hidden" name="ref" value="<%= g %>"><button class="btn ghost" style="padding:3px 7px;font-size:10px">Titelbild</button></form><% } %>
+        <form method="post" action="/characters/<%= c.slug %>/image-del" style="margin:0"><input type="hidden" name="ref" value="<%= g %>"><button class="btn red" style="padding:3px 8px;font-size:10px" onclick="return confirm('Bild entfernen?')">×</button></form>
+      </div><% } %>
+    </div>
+  <% }); %>
+  </div><% } else { %><p class="dim">Noch keine Bilder.</p><% } %>
+  <% if(canEdit){ %>
+  <form method="post" action="/characters/<%= c.slug %>/images" enctype="multipart/form-data" style="margin-top:12px">
+    <label>Bilder hochladen (mehrere möglich) — Titelbild danach festlegen</label><input type="file" name="images" accept="image/*" multiple>
+    <div style="margin-top:8px"><button class="btn">Hochladen</button></div>
+  </form><% } %>
 </div>
 
 <h2>Charakterbogen</h2>

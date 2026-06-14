@@ -113,7 +113,8 @@ app.get('/characters/:slug', loadChar, (req, res) => {
   const conns = db.prepare("SELECT * FROM connections WHERE shared_by LIKE '%'||?||'%' ORDER BY campaign_relevant DESC, name").all(c.name);
   const runs = db.prepare("SELECT slug,number,title,date_played FROM runs WHERE participants LIKE '%'||?||'%' ORDER BY sort").all(c.name);
   const logs = canEdit ? db.prepare('SELECT * FROM char_logs WHERE char_slug=? ORDER BY created_at DESC').all(c.slug) : [];
-  res.render('character', { title: c.name, c, canEdit, conns, runs, logs });
+  let galleryArr = []; try { galleryArr = JSON.parse(c.gallery || '[]'); } catch (e) {}
+  res.render('character', { title: c.name, c, canEdit, conns, runs, logs, galleryArr });
 });
 app.post('/characters/:slug', loadChar, (req, res) => {
   if (!mayEditChar(req, res)) return res.status(403).render('error', { title: 'Kein Zugriff', msg: 'Nur SL oder der eigene Spieler.' });
@@ -126,9 +127,27 @@ app.post('/characters/:slug/sheet', loadChar, uploadDoc.single('sheet'), (req, r
   if (req.file) db.prepare('UPDATE characters SET sheet=? WHERE slug=?').run(req.file.filename, req.char.slug);
   res.redirect('/characters/' + req.char.slug);
 });
-app.post('/characters/:slug/image', loadChar, upload.single('image'), (req, res) => {
+app.post('/characters/:slug/images', loadChar, upload.array('images', 12), (req, res) => {
   if (!mayEditChar(req, res)) return res.status(403).end();
-  if (req.file) db.prepare('UPDATE characters SET image=? WHERE slug=?').run(req.file.filename, req.char.slug);
+  let gal = []; try { gal = JSON.parse(req.char.gallery || '[]'); } catch (e) {}
+  for (const f of (req.files || [])) gal.push(f.filename);
+  const title = req.char.image || (gal[0] || null);
+  db.prepare('UPDATE characters SET gallery=?, image=COALESCE(image,?) WHERE slug=?').run(JSON.stringify(gal), title, req.char.slug);
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/title', loadChar, (req, res) => {
+  if (!mayEditChar(req, res)) return res.status(403).end();
+  let gal = []; try { gal = JSON.parse(req.char.gallery || '[]'); } catch (e) {}
+  if (gal.includes(req.body.ref)) db.prepare('UPDATE characters SET image=? WHERE slug=?').run(req.body.ref, req.char.slug);
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/image-del', loadChar, (req, res) => {
+  if (!mayEditChar(req, res)) return res.status(403).end();
+  let gal = []; try { gal = JSON.parse(req.char.gallery || '[]'); } catch (e) {}
+  gal = gal.filter(g => g !== req.body.ref);
+  let img = req.char.image;
+  if (img === req.body.ref) img = gal[0] || null;
+  db.prepare('UPDATE characters SET gallery=?, image=? WHERE slug=?').run(JSON.stringify(gal), img, req.char.slug);
   res.redirect('/characters/' + req.char.slug);
 });
 app.post('/characters/:slug/log', loadChar, (req, res) => {
@@ -296,6 +315,34 @@ app.post('/sl/maps', requireSL, upload.single('image'), (req, res) => {
       .run(slug, req.body.title || 'Karte', req.file.filename, req.body.note || '', maxSort);
   }
   res.redirect('/maps');
+});
+
+// ---------- FRAKTIONEN ----------
+app.get('/factions', (req, res) => {
+  const rows = db.prepare('SELECT * FROM factions ORDER BY sort, name').all();
+  res.render('factions', { title: 'Fraktionen', rows });
+});
+app.get('/factions/:slug', (req, res) => {
+  const f = db.prepare('SELECT * FROM factions WHERE slug=?').get(req.params.slug);
+  if (!f) return res.status(404).render('error', { title: '404', msg: 'Fraktion nicht gefunden.' });
+  res.render('faction', { title: f.name, f });
+});
+app.post('/sl/factions', requireSL, (req, res) => {
+  const slug = (req.body.name || ('fraktion-' + Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const maxSort = (db.prepare('SELECT MAX(sort) m FROM factions').get().m || 0) + 10;
+  db.prepare('INSERT OR IGNORE INTO factions (slug,name,category,status,description,notable_members,sort) VALUES (?,?,?,?,?,?,?)')
+    .run(slug, req.body.name || 'Neue Fraktion', '', '', '', '', maxSort);
+  res.redirect('/factions/' + slug);
+});
+app.post('/sl/faction/:slug', requireSL, (req, res) => {
+  const b = req.body;
+  db.prepare('UPDATE factions SET name=?,category=?,status=?,description=?,notable_members=? WHERE slug=?')
+    .run(b.name, b.category, b.status, b.description, b.notable_members, req.params.slug);
+  res.redirect('/factions/' + req.params.slug);
+});
+app.post('/sl/faction/:slug/img', requireSL, upload.single('image'), (req, res) => {
+  if (req.file) db.prepare('UPDATE factions SET image=? WHERE slug=?').run(req.file.filename, req.params.slug);
+  res.redirect('/factions/' + req.params.slug);
 });
 
 app.use((req, res) => res.status(404).render('error', { title: '404', msg: 'Seite nicht gefunden.' }));

@@ -167,3 +167,6 @@ details.panel summary::-webkit-details-marker{display:none}
 /* Charakter-Bilder: vollstaendig zeigen, zentriert, schwarze Balken statt Beschnitt */
 .char-thumb{object-fit:contain !important;background:#000;height:210px}
 .char-avatar{object-fit:contain !important;background:#000}
+
+/* Charakter-Galerie: vollstaendig zeigen */
+.char-gal{object-fit:contain !important;background:#000;height:150px;width:100%;border:1px solid var(--line2);border-radius:6px}

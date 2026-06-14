@@ -1,0 +1,19 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Fraktionen</h1>
+<div class="sub">Bespielte Mächte &amp; Gruppierungen Hamburgs</div>
+<div class="grid cols3">
+<% rows.forEach(f=>{ %>
+  <a class="card" href="/factions/<%= f.slug %>">
+    <% if(f.image){ var fs=f.image.indexOf('/static')===0?f.image:'/uploads/'+f.image; %><img class="thumb" src="<%= fs %>"><% } %>
+    <div class="body"><h3><%= f.name %></h3><div class="meta"><%= f.category||'' %></div>
+      <% if(f.status){ %><div style="margin-top:6px"><span class="pill green"><%= f.status %></span></div><% } %>
+      <% if(f.description){ %><p><%= f.description.slice(0,110) %>…</p><% } %></div>
+  </a>
+<% }); %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel" style="margin-top:18px"><div class="meta mono" style="color:var(--green)">SL · Fraktion hinzufügen</div>
+  <form method="post" action="/sl/factions" class="row" style="margin-top:8px"><div style="flex:1"><input name="name" placeholder="Name der Fraktion"></div><button class="btn">Anlegen</button></form>
+</div>
+<% } %>
+<%- include('partials/footer') %>
