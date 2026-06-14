@@ -1,0 +1,19 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">&gt;</span> Willkommen im Schattennetz</h1>
+<div class="sub">Privater Knoten der Hamburger Runde · <%= charCount %> aktive Runner · <%= runs.length %> Runs im Logbuch</div>
+<div class="shadowtalk"><span class="who">&gt; Klaas:</span> Was hier drinsteht, bleibt hier drin. Wer plappert, schwimmt. Willkommen an Bord.</div>
+<div class="grid cols3" style="margin-top:18px">
+  <a class="card" href="/characters"><div class="meta">Dossiers</div><h3>Runner</h3><p>Wer in Hamburg unterwegs ist — Profile, Kontakte, lose Enden.</p></a>
+  <a class="card" href="/runs"><div class="meta">Tagebuch</div><h3>Logbuch</h3><p>Abgeschlossene Runs mit Bildern und Zusammenfassung.</p></a>
+  <a class="card" href="/timeline"><div class="meta">Chronik</div><h3>Zeitleiste</h3><p>Was bisher geschah, in Reihenfolge.</p></a>
+  <a class="card" href="/connections"><div class="meta">Netzwerk</div><h3>Kontakte</h3><p>NSCs, die bespielt wurden — Ort, Vorlieben, Status, Historie.</p></a>
+  <a class="card" href="/notes"><div class="meta">Privat</div><h3>Notizen</h3><p>Dein persoenlicher Notizblock (optional teilbar).</p></a>
+  <% if(user.role==='sl'){ %><a class="card" href="/sl" style="border-color:var(--red)"><div class="meta" style="color:var(--red)">Restricted</div><h3>SL // HDL</h3><p>Hintergrundebene — nur Spielleitung.</p></a><% } %>
+</div>
+<h2>Zuletzt im Logbuch</h2>
+<div class="grid cols2">
+<% runs.slice(-3).reverse().forEach(r=>{ %>
+  <a class="card" href="/runs/<%= r.slug %>"><div class="meta"><%= r.number %> · <%= r.date_played %></div><h3><%= r.title %></h3><p><%= (r.summary||'').slice(0,150) %>…</p></a>
+<% }); %>
+</div>
+<%- include('partials/footer') %>

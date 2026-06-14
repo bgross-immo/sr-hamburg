@@ -1,0 +1,32 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> <%= x.name %></h1>
+<div class="sub"><%= x.role %><% if(x.faction){ %> · <%= x.faction %><% } %></div>
+<div class="panel">
+  <div class="row" style="align-items:flex-start;gap:20px">
+    <% if(x.image){ %><img class="avatar" src="/uploads/<%= x.image %>"><% } %>
+    <dl class="kv" style="flex:1;min-width:280px">
+      <dt>Ort</dt><dd><%= x.location || '—' %></dd>
+      <dt>Vorlieben</dt><dd><%= x.preferences || '—' %></dd>
+      <dt>Status</dt><dd><%= x.status || '—' %></dd>
+      <% if(x.shared_by){ %><dt>Bekannt bei</dt><dd><%= x.shared_by %></dd><% } %>
+    </dl>
+  </div>
+  <% if(x.history){ %><h2>Historie</h2><div class="shadowtalk"><span class="who">&gt; Aktenlage:</span> <%= x.history %></div><% } %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel"><div class="meta mono" style="color:var(--red)">SL · bearbeiten</div>
+  <form method="post" action="/sl/connection/<%= x.slug %>">
+    <div class="row"><div style="flex:1"><label>Rolle</label><input name="role" value="<%= x.role||'' %>"></div><div style="flex:1"><label>Fraktion</label><input name="faction" value="<%= x.faction||'' %>"></div></div>
+    <div class="row"><div style="flex:1"><label>Ort</label><input name="location" value="<%= x.location||'' %>"></div><div style="flex:1"><label>Status</label><input name="status" value="<%= x.status||'' %>"></div></div>
+    <label>Vorlieben</label><input name="preferences" value="<%= x.preferences||'' %>">
+    <label>Historie</label><textarea name="history" rows="3"><%= x.history||'' %></textarea>
+    <div style="margin-top:12px"><button class="btn">Speichern</button></div>
+  </form>
+  <hr class="sep">
+  <form method="post" action="/sl/img/connection/<%= x.slug %>" enctype="multipart/form-data" class="row">
+    <input type="file" name="image" accept="image/*" style="max-width:280px"><button class="btn ghost">Bild hochladen</button>
+  </form>
+</div>
+<% } %>
+<p style="margin-top:14px"><a href="/connections">&larr; Alle Kontakte</a></p>
+<%- include('partials/footer') %>

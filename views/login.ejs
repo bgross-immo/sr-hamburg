@@ -1,0 +1,15 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Login // Schattennetz Hamburg</title>
+<link rel="stylesheet" href="/static/css/style.css"></head><body><div class="scan"></div>
+<div class="login-wrap">
+  <div class="login-logo"><h1 style="font-size:22px"><b>SCHATTEN</b>NETZ</h1><div class="sub" style="text-align:center">Hamburg-Knoten · Zugang nur fuer Eingeweihte</div></div>
+  <div class="panel">
+    <form method="post" action="/login">
+      <label>Benutzer</label><input name="username" autofocus autocomplete="username">
+      <label>Passwort</label><input type="password" name="password" autocomplete="current-password">
+      <div style="margin-top:16px"><button class="btn" style="width:100%">Verbinden</button></div>
+      <% if (error){ %><div class="err">// <%= error %></div><% } %>
+    </form>
+  </div>
+  <div class="dim mono" style="text-align:center;font-size:11px;margin-top:14px">unbefugter zugriff wird zurueckverfolgt</div>
+</div></body></html>

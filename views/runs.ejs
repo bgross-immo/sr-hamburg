@@ -1,0 +1,23 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Logbuch</h1>
+<div class="sub">Abgeschlossene Runs · Tagebuch der Hamburger Runde</div>
+<div class="grid cols2">
+<% rows.forEach(r=>{ var imgs=JSON.parse(r.images||'[]'); %>
+  <a class="card" href="/runs/<%= r.slug %>">
+    <% if(imgs[0]){ %><img class="thumb" src="/uploads/<%= imgs[0] %>"><% } %>
+    <div class="meta"><%= r.number %> · <%= r.date_played %></div>
+    <h3><%= r.title %></h3>
+    <p><%= (r.summary||'').slice(0,170) %>…</p>
+  </a>
+<% }); %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel" style="margin-top:18px"><div class="meta mono" style="color:var(--red)">SL · neuen Run anlegen</div>
+  <form method="post" action="/sl/runs">
+    <div class="row"><div style="flex:1"><label>Nummer</label><input name="number" placeholder="Run 3"></div><div style="flex:2"><label>Titel</label><input name="title"></div></div>
+    <div class="row"><div style="flex:1"><label>Datum/Zeitbezug</label><input name="date_played"></div><div style="flex:2"><label>Teilnehmer</label><input name="participants"></div></div>
+    <label>Zusammenfassung (Spielersicht, spoilerfrei)</label><textarea name="summary" rows="4"></textarea>
+    <div style="margin-top:12px"><button class="btn">Run anlegen</button></div>
+  </form></div>
+<% } %>
+<%- include('partials/footer') %>

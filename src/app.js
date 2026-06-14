@@ -1,0 +1,198 @@
+const path = require('path');
+const fs = require('fs');
+const express = require('express');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const db = require('./db');
+
+// seed on boot (idempotent)
+try { require('./seed'); } catch (e) { console.error('seed error', e); }
+
+const app = express();
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, '..', 'views'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use('/static', express.static(path.join(__dirname, '..', 'public')));
+
+const UPLOAD_DIR = path.join(process.env.DATA_DIR || path.join(__dirname, '..', 'data'), 'uploads');
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (r, f, cb) => cb(null, UPLOAD_DIR),
+    filename: (r, f, cb) => cb(null, Date.now() + '-' + f.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')),
+  }),
+  limits: { fileSize: 8 * 1024 * 1024 },
+  fileFilter: (r, f, cb) => cb(null, /^image\//.test(f.mimetype)),
+});
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 24 * 30 },
+}));
+
+// current user + helpers in locals
+app.use((req, res, next) => {
+  if (req.session.uid) {
+    res.locals.user = db.prepare('SELECT id,username,display_name,role,must_change FROM users WHERE id=?').get(req.session.uid);
+  } else res.locals.user = null;
+  res.locals.path = req.path;
+  next();
+});
+
+// gate: login required everywhere except login + static
+app.use((req, res, next) => {
+  if (req.path === '/login' || req.path.startsWith('/static')) return next();
+  if (!res.locals.user) return res.redirect('/login');
+  // force password change on first login
+  if (res.locals.user.must_change && !req.path.startsWith('/account') && req.path !== '/logout') return res.redirect('/account');
+  next();
+});
+// uploads only for logged-in users
+app.use('/uploads', express.static(UPLOAD_DIR));
+
+const requireSL = (req, res, next) => res.locals.user && res.locals.user.role === 'sl' ? next() : res.status(403).render('error', { title: 'Zugriff verweigert', msg: 'Nur Spielleitung.' });
+
+// ---------- AUTH ----------
+app.get('/login', (req, res) => {
+  if (res.locals.user) return res.redirect('/');
+  res.render('login', { title: 'Login', error: null });
+});
+app.post('/login', (req, res) => {
+  const u = db.prepare('SELECT * FROM users WHERE username=?').get((req.body.username || '').toLowerCase().trim());
+  if (!u || !bcrypt.compareSync(req.body.password || '', u.password_hash))
+    return res.render('login', { title: 'Login', error: 'Falscher Benutzer oder falsches Passwort.' });
+  req.session.uid = u.id;
+  res.redirect(u.must_change ? '/account' : '/');
+});
+app.get('/logout', (req, res) => { req.session.destroy(() => res.redirect('/login')); });
+
+app.get('/account', (req, res) => res.render('account', { title: 'Konto', msg: null }));
+app.post('/account/password', (req, res) => {
+  const { current, pw1, pw2 } = req.body;
+  const u = db.prepare('SELECT * FROM users WHERE id=?').get(res.locals.user.id);
+  if (!res.locals.user.must_change && !bcrypt.compareSync(current || '', u.password_hash))
+    return res.render('account', { title: 'Konto', msg: 'Aktuelles Passwort falsch.' });
+  if (!pw1 || pw1.length < 6 || pw1 !== pw2)
+    return res.render('account', { title: 'Konto', msg: 'Neues Passwort min. 6 Zeichen und beide gleich.' });
+  db.prepare('UPDATE users SET password_hash=?, must_change=0 WHERE id=?').run(bcrypt.hashSync(pw1, 10), u.id);
+  res.redirect('/');
+});
+
+// ---------- HOME ----------
+app.get('/', (req, res) => {
+  const runs = db.prepare('SELECT * FROM runs ORDER BY sort').all();
+  const chars = db.prepare("SELECT * FROM characters WHERE metatype != '—' ORDER BY sort").all();
+  res.render('home', { title: 'Knoten', runs, charCount: chars.length });
+});
+
+// ---------- CHARACTERS ----------
+app.get('/characters', (req, res) => {
+  const rows = db.prepare('SELECT * FROM characters ORDER BY sort').all();
+  const byPlayer = {};
+  for (const c of rows) (byPlayer[c.player || '—'] ||= []).push(c);
+  res.render('characters', { title: 'Runner', byPlayer });
+});
+app.get('/characters/:slug', (req, res) => {
+  const c = db.prepare('SELECT * FROM characters WHERE slug=?').get(req.params.slug);
+  if (!c) return res.status(404).render('error', { title: '404', msg: 'Runner nicht gefunden.' });
+  res.render('character', { title: c.name, c });
+});
+
+// ---------- CONNECTIONS ----------
+app.get('/connections', (req, res) => {
+  const rows = db.prepare('SELECT * FROM connections ORDER BY campaign_relevant DESC, name').all();
+  res.render('connections', { title: 'Kontakte', rows });
+});
+app.get('/connections/:slug', (req, res) => {
+  const x = db.prepare('SELECT * FROM connections WHERE slug=?').get(req.params.slug);
+  if (!x) return res.status(404).render('error', { title: '404', msg: 'Kontakt nicht gefunden.' });
+  res.render('connection', { title: x.name, x });
+});
+
+// ---------- RUNS ----------
+app.get('/runs', (req, res) => {
+  const rows = db.prepare('SELECT * FROM runs ORDER BY sort').all();
+  res.render('runs', { title: 'Logbuch', rows });
+});
+app.get('/runs/:slug', (req, res) => {
+  const r = db.prepare('SELECT * FROM runs WHERE slug=?').get(req.params.slug);
+  if (!r) return res.status(404).render('error', { title: '404', msg: 'Run nicht gefunden.' });
+  r.imageList = JSON.parse(r.images || '[]');
+  res.render('run', { title: r.title, r });
+});
+
+// ---------- TIMELINE ----------
+app.get('/timeline', (req, res) => {
+  const rows = db.prepare('SELECT * FROM timeline ORDER BY sort').all();
+  res.render('timeline', { title: 'Zeitleiste', rows });
+});
+
+// ---------- NOTES ----------
+app.get('/notes', (req, res) => {
+  const mine = db.prepare('SELECT * FROM notes WHERE user_id=? ORDER BY updated_at DESC').all(res.locals.user.id);
+  const shared = db.prepare(`SELECT n.*, u.display_name author FROM notes n JOIN users u ON u.id=n.user_id WHERE n.shared=1 AND n.user_id!=? ORDER BY n.updated_at DESC`).all(res.locals.user.id);
+  res.render('notes', { title: 'Notizen', mine, shared });
+});
+app.post('/notes', (req, res) => {
+  db.prepare('INSERT INTO notes (user_id,title,body,shared,updated_at) VALUES (?,?,?,?,?)')
+    .run(res.locals.user.id, req.body.title || 'Ohne Titel', req.body.body || '', req.body.shared ? 1 : 0, new Date().toISOString());
+  res.redirect('/notes');
+});
+app.post('/notes/:id', (req, res) => {
+  const n = db.prepare('SELECT * FROM notes WHERE id=?').get(req.params.id);
+  if (!n || n.user_id !== res.locals.user.id) return res.status(403).end();
+  if (req.body._delete) db.prepare('DELETE FROM notes WHERE id=?').run(n.id);
+  else db.prepare('UPDATE notes SET title=?,body=?,shared=?,updated_at=? WHERE id=?')
+    .run(req.body.title || 'Ohne Titel', req.body.body || '', req.body.shared ? 1 : 0, new Date().toISOString(), n.id);
+  res.redirect('/notes');
+});
+
+// ---------- SL AREA ----------
+app.get('/sl', requireSL, (req, res) => {
+  const tiles = db.prepare('SELECT * FROM metaplot ORDER BY owner').all();
+  res.render('sl', { title: 'SL // Hintergrund', tiles });
+});
+app.post('/sl/meta/:slug', requireSL, (req, res) => {
+  db.prepare('UPDATE metaplot SET title=?,body=?,updated_at=? WHERE slug=?')
+    .run(req.body.title, req.body.body, new Date().toISOString(), req.params.slug);
+  res.redirect('/sl');
+});
+// SL: edit run summary + upload images
+app.post('/sl/runs/:slug', requireSL, upload.array('images', 12), (req, res) => {
+  const r = db.prepare('SELECT * FROM runs WHERE slug=?').get(req.params.slug);
+  if (!r) return res.status(404).end();
+  let imgs = JSON.parse(r.images || '[]');
+  for (const f of (req.files || [])) imgs.push(f.filename);
+  db.prepare('UPDATE runs SET title=?,date_played=?,participants=?,summary=?,images=? WHERE slug=?')
+    .run(req.body.title || r.title, req.body.date_played || r.date_played, req.body.participants || r.participants, req.body.summary || r.summary, JSON.stringify(imgs), r.slug);
+  res.redirect('/runs/' + r.slug);
+});
+app.post('/sl/runs', requireSL, (req, res) => {
+  const slug = (req.body.slug || ('run-' + Date.now())).toLowerCase().replace(/[^a-z0-9-]/g, '-');
+  const maxSort = (db.prepare('SELECT MAX(sort) m FROM runs').get().m || 0) + 10;
+  db.prepare('INSERT INTO runs (slug,number,title,date_played,participants,summary,images,sort) VALUES (?,?,?,?,?,?,?,?)')
+    .run(slug, req.body.number || '', req.body.title || 'Neuer Run', req.body.date_played || '', req.body.participants || '', req.body.summary || '', '[]', maxSort);
+  res.redirect('/runs/' + slug);
+});
+// SL: upload image for connection / character
+app.post('/sl/img/:type/:slug', requireSL, upload.single('image'), (req, res) => {
+  if (!req.file) return res.redirect('back');
+  const table = req.params.type === 'connection' ? 'connections' : 'characters';
+  db.prepare(`UPDATE ${table} SET image=? WHERE slug=?`).run(req.file.filename, req.params.slug);
+  res.redirect('back');
+});
+// SL: edit connection text
+app.post('/sl/connection/:slug', requireSL, (req, res) => {
+  const f = req.body;
+  db.prepare('UPDATE connections SET role=?,faction=?,location=?,preferences=?,status=?,history=? WHERE slug=?')
+    .run(f.role, f.faction, f.location, f.preferences, f.status, f.history, req.params.slug);
+  res.redirect('/connections/' + req.params.slug);
+});
+
+app.use((req, res) => res.status(404).render('error', { title: '404', msg: 'Seite nicht gefunden.' }));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log('Schattennetz Hamburg laeuft auf Port ' + PORT));

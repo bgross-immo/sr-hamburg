@@ -1,0 +1,14 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Zeitleiste</h1>
+<div class="sub">Was bisher geschah</div>
+<div class="tl">
+<% rows.forEach(e=>{ %>
+  <div class="ev">
+    <div class="when"><%= e.when_label %></div>
+    <h3><%= e.title %></h3>
+    <div class="dim" style="font-size:14px"><%= e.body %></div>
+    <% if(e.run_slug){ %><div style="margin-top:4px"><a href="/runs/<%= e.run_slug %>">&rarr; im Logbuch</a></div><% } %>
+  </div>
+<% }); %>
+</div>
+<%- include('partials/footer') %>

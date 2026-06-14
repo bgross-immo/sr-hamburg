@@ -1,0 +1,20 @@
+<%- include('partials/header',{title}) %>
+<h1 style="color:var(--red)"><span class="pre">//</span> SL // Hintergrundebene</h1>
+<div class="sub" style="color:var(--red)">RESTRICTED · nur Spielleitung · Spieler sehen das nicht</div>
+<div class="shadowtalk"><span class="who">&gt; Hinweis:</span> Codenamen bleiben verklausuliert (z. B. „HDL“), solange die Spieler den Plot noch nicht erkannt haben.</div>
+<div class="grid cols2" style="margin-top:14px">
+<% tiles.forEach(t=>{ %>
+  <div class="panel" style="border-color:var(--red)">
+    <div class="row" style="justify-content:space-between">
+      <div><span class="pill red"><%= t.code %></span> <strong><%= t.owner %></strong></div>
+      <span class="dim mono" style="font-size:11px"><%= (t.updated_at||'').slice(0,10) %></span>
+    </div>
+    <form method="post" action="/sl/meta/<%= t.slug %>" style="margin-top:8px">
+      <label>Titel</label><input name="title" value="<%= t.title||'' %>">
+      <label>Inhalt</label><textarea name="body" rows="6"><%= t.body||'' %></textarea>
+      <div style="margin-top:10px"><button class="btn red">Speichern</button></div>
+    </form>
+  </div>
+<% }); %>
+</div>
+<%- include('partials/footer') %>

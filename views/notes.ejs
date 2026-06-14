@@ -1,0 +1,30 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Notizen</h1>
+<div class="sub">Dein privater Block · optional fuer die Runde teilbar</div>
+<div class="panel">
+  <form method="post" action="/notes">
+    <label>Titel</label><input name="title">
+    <label>Notiz</label><textarea name="body" rows="4"></textarea>
+    <div class="row" style="margin-top:10px"><label style="margin:0"><input type="checkbox" name="shared" style="width:auto"> mit der Runde teilen</label><button class="btn">Speichern</button></div>
+  </form>
+</div>
+<% if(mine.length){ %><h2>Meine Notizen</h2><% } %>
+<% mine.forEach(n=>{ %>
+  <div class="note-card">
+    <form method="post" action="/notes/<%= n.id %>">
+      <input name="title" value="<%= n.title %>" style="font-weight:700">
+      <textarea name="body" rows="3" style="margin-top:6px"><%= n.body %></textarea>
+      <div class="row" style="margin-top:8px">
+        <label style="margin:0"><input type="checkbox" name="shared" style="width:auto" <%= n.shared?'checked':'' %>> geteilt</label>
+        <button class="btn ghost">Aktualisieren</button>
+        <button class="btn red" name="_delete" value="1" onclick="return confirm('Loeschen?')">Loeschen</button>
+        <span class="dim mono" style="font-size:11px"><%= (n.updated_at||'').slice(0,16).replace('T',' ') %></span>
+      </div>
+    </form>
+  </div>
+<% }); %>
+<% if(shared.length){ %><h2>Von der Runde geteilt</h2><% shared.forEach(n=>{ %>
+  <div class="note-card"><div class="mono" style="color:var(--amber);font-size:12px">@<%= n.author %> · <%= (n.updated_at||'').slice(0,16).replace('T',' ') %></div>
+    <strong><%= n.title %></strong><div style="white-space:pre-line;margin-top:4px"><%= n.body %></div></div>
+<% }); } %>
+<%- include('partials/footer') %>

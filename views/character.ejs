@@ -1,0 +1,24 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> <%= c.name %></h1>
+<div class="sub"><%= c.player %> · <%= c.metatype %></div>
+<div class="panel">
+  <div class="row" style="align-items:flex-start;gap:20px">
+    <% if(c.image){ %><img class="avatar" src="/uploads/<%= c.image %>"><% } %>
+    <dl class="kv" style="flex:1;min-width:280px">
+      <dt>Archetyp</dt><dd><%= c.archetype %></dd>
+      <% if(c.magic && c.magic!=='—'){ %><dt>Magie/Resonanz</dt><dd><%= c.magic %></dd><% } %>
+      <dt>Profil</dt><dd><%= c.profile %></dd>
+      <% if(c.signature && c.signature!=='—'){ %><dt>Signature</dt><dd><%= c.signature %></dd><% } %>
+      <% if(c.hooks && c.hooks!=='—'){ %><dt>Lose Enden</dt><dd><%= c.hooks %></dd><% } %>
+      <% if(c.contacts && c.contacts!=='—'){ %><dt>Kontakte</dt><dd><%= c.contacts %></dd><% } %>
+    </dl>
+  </div>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel"><div class="meta mono" style="color:var(--red)">SL · Bild setzen</div>
+  <form method="post" action="/sl/img/character/<%= c.slug %>" enctype="multipart/form-data" class="row" style="margin-top:8px">
+    <input type="file" name="image" accept="image/*" style="max-width:280px"><button class="btn ghost">Upload</button>
+  </form></div>
+<% } %>
+<p style="margin-top:14px"><a href="/characters">&larr; Alle Runner</a></p>
+<%- include('partials/footer') %>

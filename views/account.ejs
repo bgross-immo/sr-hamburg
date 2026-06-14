@@ -1,0 +1,13 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Konto</h1>
+<div class="sub">@<%= user.username %> · <%= user.display_name %><% if(user.must_change){ %> · ERSTANMELDUNG: bitte Passwort setzen<% } %></div>
+<div class="panel" style="max-width:460px">
+  <form method="post" action="/account/password">
+    <% if(!user.must_change){ %><label>Aktuelles Passwort</label><input type="password" name="current"><% } %>
+    <label>Neues Passwort</label><input type="password" name="pw1">
+    <label>Neues Passwort wiederholen</label><input type="password" name="pw2">
+    <div style="margin-top:16px"><button class="btn">Passwort speichern</button></div>
+    <% if(msg){ %><div class="err">// <%= msg %></div><% } %>
+  </form>
+</div>
+<%- include('partials/footer') %>
