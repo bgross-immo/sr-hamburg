@@ -7,9 +7,7 @@
   <% byPlayer[pl].forEach(c=>{ %>
     <a class="card" href="/characters/<%= c.slug %>">
       <% if(c.image){ %><img class="thumb" src="/uploads/<%= c.image %>"><% } %>
-      <h3><%= c.name %></h3>
-      <div class="meta"><%= c.metatype %></div>
-      <p><%= c.archetype %></p>
+      <div class="body"><h3><%= c.name %></h3><div class="meta"><%= c.metatype %></div><p><%= c.archetype %></p></div>
     </a>
   <% }); %>
   </div>

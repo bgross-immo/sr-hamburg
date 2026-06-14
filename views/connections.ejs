@@ -5,12 +5,14 @@
 <% rows.forEach(x=>{ %>
   <a class="card" href="/connections/<%= x.slug %>" <% if(x.campaign_relevant){ %>style="border-color:var(--amber)"<% } %>>
     <% if(x.image){ %><img class="thumb" src="/uploads/<%= x.image %>"><% } %>
-    <h3><%= x.name %></h3>
-    <div class="meta"><%= x.role %></div>
-    <p><%= x.location %></p>
-    <div style="margin-top:8px">
-      <% if(x.faction){ %><span class="pill cyan"><%= x.faction %></span><% } %>
-      <% if(x.campaign_relevant){ %><span class="pill amber">Kampagnen-relevant</span><% } %>
+    <div class="body">
+      <h3><%= x.name %></h3>
+      <div class="meta"><%= x.role %></div>
+      <p><%= x.location %></p>
+      <div style="margin-top:8px">
+        <% if(x.faction){ %><span class="pill green"><%= x.faction %></span><% } %>
+        <% if(x.campaign_relevant){ %><span class="pill amber">Kampagnen-relevant</span><% } %>
+      </div>
     </div>
   </a>
 <% }); %>

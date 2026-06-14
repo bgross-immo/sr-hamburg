@@ -7,7 +7,7 @@
 <div class="scan"></div>
 <% if (user) { %>
 <header class="top"><div class="wrap bar">
-  <div class="brand"><b>SCHATTEN</b>NETZ<span class="dim"> // HAMBURG-KNOTEN</span> <span class="blink">_</span></div>
+  <div class="brand"><span class="dot"></span><b>SCHATTEN</b>NETZ<span class="dim"> // HAMBURG-KNOTEN</span></div>
   <nav class="main">
     <% const nav=[['/','Knoten'],['/characters','Runner'],['/runs','Logbuch'],['/timeline','Zeitleiste'],['/connections','Kontakte'],['/notes','Notizen']];
        nav.forEach(n=>{ %><a href="<%= n[0] %>" class="<%= (n[0]==='/'? path==='/' : path.indexOf(n[0])===0)?'active':'' %>"><%= n[1] %></a><% }); %>
