@@ -290,5 +290,27 @@ const insFac = db.prepare(`INSERT OR IGNORE INTO factions (slug,name,category,st
 if (db.prepare('SELECT COUNT(*) c FROM factions').get().c === 0)
   for (const f of factions) insFac.run(...f);
 
+
+// ---------- Connections: Einflussstufen (aus den Charakterboegen) ----------
+const infl = { 'dr-bisam':'4','svenja':'4','senator-von-ahrensburg':'6','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5' };
+const bfInf = db.prepare('UPDATE connections SET influence=COALESCE(influence,?) WHERE slug=?');
+for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
+
+// ---------- LOCATIONS (Spielerwissen, spoilerfrei) ----------
+const locations = [
+  ['klabautermann','Der Klabautermann','St. Pauli','Schatten-Kneipe','Anlaufpunkt / neutraler Boden','Kellerkneipe und Umschlagplatz fuer Auftraege. Hier nahm vieles seinen Anfang.','—',10],
+  ['bisam-klinik','Dr. Bisams Klinik','Steilshoop (an der Friedhofsmauer)','Strassenklinik','Sicherer Hafen','Behandelt jeden ohne SIN-Fragen. In Run 2 von Profis angegriffen.','Dr. Bisam',20],
+  ['dock-4','Dock 4','Finkenwerder','Wartungsdock','Likedeeler-Stuetzpunkt','Svenjas geheimes Dock und Heimathafen der „Trotzdem“.','Kaeptn Svenja',30],
+  ['flak-turm','Flak-Turm „Trutzburg“','Nordsee / Watt','Alter Flakturm','Wattsammler-Basis','Aus dem Wasser ragender Betonturm; in Run 1 Schauplatz des Korsaren-Angriffs.','Olaf „Schlickteufel“',40],
+  ['steilshoop','Steilshoop','Bezirk Wandsbek','Hochhaus-Kiez','Territorium','Grauer Plattenbau-Kiez; Platzhirsch ist der Bakhtari-Clan. Bisams Revier.','Bakhtari-Clan',50],
+  ['sanitaetsstuetzpunkt','Ehemaliger Sanitaetsstuetzpunkt','Steilshoop','Aufgegebenes Depot','Bakhtari-Lager','Notversorgung nach der Schwarzen Flut, heute Bakhtari-Kuehllager (Run 2).','—',60],
+  ['schwarzer-garten','Der Schwarze Garten','Wildost (sued der Elbe)','Verwildertes Grundstueck','Unheimlich / versiegelt','Ein stiller, abweisender Ort, der „zuhoert“. Bisher nichts zu holen — nur Gaensehaut.','—',70],
+  ['ohlsdorfer-friedhof','Ohlsdorfer Friedhof','Ohlsdorf','Friedhof','Neutraler Boden','Weitlaeufiges, stilles Reich; Treffpunkt im Schatten.','—',80],
+  ['elbphilharmonie','Elbphilharmonie','HafenCity','Wahrzeichen / VIP','Treffpunkt der feinen Leute','Glaeserner Elfenbeinturm ueber dem Hafen; Schauplatz des Auftrags in Run 0.','—',90],
+];
+const insLoc = db.prepare(`INSERT OR IGNORE INTO locations (slug,name,area,type,status,description,notable,sort) VALUES (?,?,?,?,?,?,?,?)`);
+if (db.prepare('SELECT COUNT(*) c FROM locations').get().c === 0)
+  for (const l of locations) insLoc.run(...l);
+
 console.log('Seed OK. Default-Passwort fuer alle Logins:', PW);
 console.log('Logins:', users.map(u=>u[0]).join(', '));

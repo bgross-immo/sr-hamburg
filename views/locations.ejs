@@ -1,0 +1,19 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Locations</h1>
+<div class="sub">Bespielte Orte Hamburgs</div>
+<div class="grid cols3">
+<% rows.forEach(l=>{ %>
+  <a class="card" href="/locations/<%= l.slug %>">
+    <% if(l.image){ var ls=l.image.indexOf('/static')===0?l.image:'/uploads/'+l.image; %><img class="thumb" src="<%= ls %>"><% } %>
+    <div class="body"><h3><%= l.name %></h3><div class="meta"><%= l.area||'' %></div>
+      <% if(l.status){ %><div style="margin-top:6px"><span class="pill green"><%= l.status %></span></div><% } %>
+      <% if(l.description){ %><p><%= l.description.slice(0,110) %>…</p><% } %></div>
+  </a>
+<% }); %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel" style="margin-top:18px"><div class="meta mono" style="color:var(--green)">SL · Location hinzufügen</div>
+  <form method="post" action="/sl/locations" class="row" style="margin-top:8px"><div style="flex:1"><input name="name" placeholder="Name der Location"></div><button class="btn">Anlegen</button></form>
+</div>
+<% } %>
+<%- include('partials/footer') %>

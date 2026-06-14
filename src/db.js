@@ -73,4 +73,12 @@ db.exec(`CREATE TABLE IF NOT EXISTS factions (
 db.exec(`CREATE TABLE IF NOT EXISTS char_logs (
   id INTEGER PRIMARY KEY, char_slug TEXT NOT NULL, user_id INTEGER, author TEXT, title TEXT, body TEXT, created_at TEXT);`);
 
+try {
+  const conc = db.prepare("PRAGMA table_info(connections)").all().map(c => c.name);
+  if (!conc.includes('influence')) db.exec("ALTER TABLE connections ADD COLUMN influence TEXT");
+} catch (e) { console.error('conn migration', e); }
+db.exec(`CREATE TABLE IF NOT EXISTS locations (
+  id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, area TEXT, type TEXT,
+  status TEXT, description TEXT, notable TEXT, image TEXT, sort INTEGER DEFAULT 100);`);
+
 module.exports = db;

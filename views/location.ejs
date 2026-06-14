@@ -1,0 +1,31 @@
+<%- include('partials/header',{title}) %>
+<div class="dossier-tag">LOCATION</div>
+<h1 style="margin-top:4px"><%= l.name %></h1>
+<div class="sub"><%= l.area||'' %><% if(l.type){ %> · <%= l.type %><% } %></div>
+<div class="panel">
+  <div class="row" style="align-items:flex-start;gap:20px">
+    <% if(l.image){ var ls=l.image.indexOf('/static')===0?l.image:'/uploads/'+l.image; %><img class="avatar" src="<%= ls %>"><% } %>
+    <dl class="kv" style="flex:1;min-width:260px">
+      <dt>Stadtteil / Lage</dt><dd><%= l.area||'—' %></dd>
+      <dt>Typ</dt><dd><%= l.type||'—' %></dd>
+      <dt>Status</dt><dd><%= l.status||'—' %></dd>
+      <% if(l.notable && l.notable!=='—'){ %><dt>Wer/Was</dt><dd><%= l.notable %></dd><% } %>
+    </dl>
+  </div>
+  <% if(l.description){ %><div style="white-space:pre-line;margin-top:12px;font-size:14.5px"><%= l.description %></div><% } %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel"><div class="meta mono" style="color:var(--red)">SL · bearbeiten</div>
+  <form method="post" action="/sl/location/<%= l.slug %>">
+    <div class="row"><div style="flex:2"><label>Name</label><input name="name" value="<%= l.name %>"></div><div style="flex:1"><label>Stadtteil/Lage</label><input name="area" value="<%= l.area||'' %>"></div></div>
+    <div class="row"><div style="flex:1"><label>Typ</label><input name="type" value="<%= l.type||'' %>"></div><div style="flex:1"><label>Status</label><input name="status" value="<%= l.status||'' %>"></div></div>
+    <label>Wer/Was (Personen, Clans …)</label><input name="notable" value="<%= l.notable||'' %>">
+    <label>Beschreibung (Spielersicht — keine Spoiler)</label><textarea name="description" rows="5"><%= l.description||'' %></textarea>
+    <div style="margin-top:12px"><button class="btn">Speichern</button></div>
+  </form>
+  <hr class="sep">
+  <form method="post" action="/sl/img/location/<%= l.slug %>" enctype="multipart/form-data" class="row"><input type="file" name="image" accept="image/*" style="max-width:280px"><button class="btn ghost">Bild hochladen</button></form>
+</div>
+<% } %>
+<p style="margin-top:14px"><a href="/locations">&larr; Alle Locations</a></p>
+<%- include('partials/footer') %>

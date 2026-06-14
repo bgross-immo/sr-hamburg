@@ -289,15 +289,15 @@ app.get('/sl/export.md', requireSL, (req, res) => {
 // SL: upload image for connection / character
 app.post('/sl/img/:type/:slug', requireSL, upload.single('image'), (req, res) => {
   if (!req.file) return res.redirect('back');
-  const table = req.params.type === 'connection' ? 'connections' : 'characters';
+  const table = ({connection:'connections', location:'locations', character:'characters'})[req.params.type] || 'characters';
   db.prepare(`UPDATE ${table} SET image=? WHERE slug=?`).run(req.file.filename, req.params.slug);
   res.redirect('back');
 });
 // SL: edit connection text
 app.post('/sl/connection/:slug', requireSL, (req, res) => {
   const f = req.body;
-  db.prepare('UPDATE connections SET role=?,faction=?,location=?,preferences=?,status=?,history=? WHERE slug=?')
-    .run(f.role, f.faction, f.location, f.preferences, f.status, f.history, req.params.slug);
+  db.prepare('UPDATE connections SET role=?,faction=?,location=?,preferences=?,status=?,history=?,influence=? WHERE slug=?')
+    .run(f.role, f.faction, f.location, f.preferences, f.status, f.history, f.influence, req.params.slug);
   res.redirect('/connections/' + req.params.slug);
 });
 
@@ -343,6 +343,30 @@ app.post('/sl/faction/:slug', requireSL, (req, res) => {
 app.post('/sl/faction/:slug/img', requireSL, upload.single('image'), (req, res) => {
   if (req.file) db.prepare('UPDATE factions SET image=? WHERE slug=?').run(req.file.filename, req.params.slug);
   res.redirect('/factions/' + req.params.slug);
+});
+
+// ---------- LOCATIONS ----------
+app.get('/locations', (req, res) => {
+  const rows = db.prepare('SELECT * FROM locations ORDER BY sort, name').all();
+  res.render('locations', { title: 'Locations', rows });
+});
+app.get('/locations/:slug', (req, res) => {
+  const l = db.prepare('SELECT * FROM locations WHERE slug=?').get(req.params.slug);
+  if (!l) return res.status(404).render('error', { title: '404', msg: 'Location nicht gefunden.' });
+  res.render('location', { title: l.name, l });
+});
+app.post('/sl/locations', requireSL, (req, res) => {
+  const slug = (req.body.name || ('ort-' + Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const maxSort = (db.prepare('SELECT MAX(sort) m FROM locations').get().m || 0) + 10;
+  db.prepare('INSERT OR IGNORE INTO locations (slug,name,area,type,status,description,notable,sort) VALUES (?,?,?,?,?,?,?,?)')
+    .run(slug, req.body.name || 'Neue Location', '', '', '', '', '', maxSort);
+  res.redirect('/locations/' + slug);
+});
+app.post('/sl/location/:slug', requireSL, (req, res) => {
+  const b = req.body;
+  db.prepare('UPDATE locations SET name=?,area=?,type=?,status=?,description=?,notable=? WHERE slug=?')
+    .run(b.name, b.area, b.type, b.status, b.description, b.notable, req.params.slug);
+  res.redirect('/locations/' + req.params.slug);
 });
 
 app.use((req, res) => res.status(404).render('error', { title: '404', msg: 'Seite nicht gefunden.' }));

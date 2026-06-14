@@ -5,6 +5,7 @@
   <div class="row" style="align-items:flex-start;gap:20px">
     <% if(x.image){ %><img class="avatar" src="/uploads/<%= x.image %>"><% } %>
     <dl class="kv" style="flex:1;min-width:280px">
+      <dt>Einfluss</dt><dd><%= x.influence ? ('Stufe '+x.influence) : '—' %></dd>
       <dt>Ort</dt><dd><%= x.location || '—' %></dd>
       <dt>Vorlieben</dt><dd><%= x.preferences || '—' %></dd>
       <dt>Status</dt><dd><%= x.status || '—' %></dd>
@@ -18,6 +19,7 @@
   <form method="post" action="/sl/connection/<%= x.slug %>">
     <div class="row"><div style="flex:1"><label>Rolle</label><input name="role" value="<%= x.role||'' %>"></div><div style="flex:1"><label>Fraktion</label><input name="faction" value="<%= x.faction||'' %>"></div></div>
     <div class="row"><div style="flex:1"><label>Ort</label><input name="location" value="<%= x.location||'' %>"></div><div style="flex:1"><label>Status</label><input name="status" value="<%= x.status||'' %>"></div></div>
+    <div class="row"><div style="flex:1"><label>Einflussstufe</label><input name="influence" value="<%= x.influence||'' %>"></div></div>
     <label>Vorlieben</label><input name="preferences" value="<%= x.preferences||'' %>">
     <label>Historie</label><textarea name="history" rows="3"><%= x.history||'' %></textarea>
     <div style="margin-top:12px"><button class="btn">Speichern</button></div>
