@@ -150,15 +150,13 @@ for (const c of characters) {
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
 const connections = [
   ['dr-bisam','Dr. Bisam','Straßendoc','Mandelzirkel / Ghule (Verbündete)','Steilshoop, an der Friedhofsmauer','Behandelt jeden ohne SIN-Fragen; Barzahlung; Zigaretten','Verbündeter',
-   'Versorgte das Wattsammler-Mädchen Juna nach Run 1 und gab der Gruppe in Run 2 den Auftrag, Medikament zu beschaffen. Klinik wurde von Profis angegriffen.','Bull, Seven Lifes',1],
+   'Versorgte das Wattsammler-Mädchen Juna nach „Das Auge des Sturms“ und gab der Gruppe in „Kein Ort zum Heilen“ den Auftrag, Medikament zu beschaffen. Klinik wurde von Profis angegriffen.','Bull, Seven Lifes',1],
   ['svenja','Käpt’n Svenja','Likedeeler-Kapitänin','Likedeeler (Verbündete)','Dock 4, Finkenwerder','Freiheit der Elbe; hält ihr Wort','Verbündete',
-   'Warnte die Gruppe in Run 1 vor Vester, heuerte sie an und nahm die verschleierte Kiste in Verwahrung.','Bull',1],
-  ['senator-von-ahrensburg','Senator Julian von Ahrensburg','Lokalpolitiker / Gesicht der Ältermänner','Ältermänner','Speicherstadt / Rathaus','Hanseatische Diskretion; zahlt gut','Kontakt',
-   'Einflussreicher Strippenzieher der alten Hamburger Garde.','Al-Be-Rich',1],
+   'Warnte die Gruppe in „Das Auge des Sturms“ vor Vester, heuerte sie an und nahm die verschleierte Kiste in Verwahrung.','Bull',1],
   ['kaltenstein','Kaltenstein','Großer westlicher Drache','Bewahrer','Feldberg','Stabilität, langfristiges Spiel','Patron (sehr distanziert)',
    'Ein Drache als Connection — außergewöhnlich. Kommuniziert selten und nie umsonst.','Ermina',1],
   ['seedrachin','Seedrachin','Große Drachin (Meer)','Naturgewalt','Nordsee / Watt','Reinheit der See','Unberechenbar',
-   'Manifestierte sich in Run 1 als gewaltiger Wasser-Avatar.','Mondkind',1],
+   'Manifestierte sich in „Das Auge des Sturms“ als gewaltiger Wasser-Avatar.','Mondkind',1],
   ['mama-mamba','Mama Mamba','Voodoo-Priesterin','Mandelzirkel','Altona','Spirituelles Gleichgewicht','Kontakt',
    'Kennt die alten Geschichten und Prophezeiungen der Stadt.','Mondkind',1],
   ['warentester-klaas','Warentester Klaas','Schieber / Chef der Hamburger Likedeeler','Likedeeler','Hamburg/Hafen','Loyalität zur See, gute Geschäfte','Kontakt',
@@ -173,10 +171,14 @@ const connections = [
    'Gemeinsame Anlaufstelle/Treffpunkt.','Bull, Kapitän Flint',0],
   ['pozi','Pozi','Taliskrämerin','—','Neue Mitte','Bezahlung pünktlich','Gläubigerin',
    'Buffy schuldet ihr 12.000¥ für Beschwörungsmaterial.','Buffy',0],
-  ['maria-juanes','Maria Juanes','Konzern-Headhunterin','Konzern','Hamburg','Talente abwerben','Unzuverlässig (geringe Loyalität)',
-   'Vorsicht: möglicher Verräter-Kontakt.','Bull',0],
+  ['maria-juanes','Maria Juanes','Konzern-Headhunterin','Konzern','Hamburg','Talente abwerben','Konzern-Kontakt',
+   'Wirbt Talente fuer Konzerne ab.','Bull',0],
   ['multitool-hacker','Multitools Hacker-Kontakt','Hacker','—','Hamburg (Matrix)','—','Kontakt (Name folgt)',
-   'Half der Gruppe in Run 1, am Sperrwerk ins System einzugreifen — nur knapp gelungen.','Multitool',0],
+   'Half der Gruppe in „Das Auge des Sturms“, am Sperrwerk ins System einzugreifen — nur knapp gelungen.','Multitool',0],
+  ['gregor','Pater Gregor','Priester / Weg der Reinheit','Weg der Reinheit','Steilshoop / Suppenkueche','wirkt aufrichtig hilfsbereit','Bekannt','Tauchte in „Kein Ort zum Heilen“ in Bisams Klinik auf, brachte Vorraete und half nach dem Angriff.','',0],
+  ['groot','Konsul Juergen Groot','Konsul / Auftraggeber','','Elbphilharmonie / Speicherstadt','hanseatische Diskretion, zahlt gut','Auftraggeber','Heuerte die Runner in „Die undichte Stelle“ an, Dr. Foss zu extrahieren. Verachtet Proteus.','',0],
+  ['juna','Juna','Wattsammler-Maedchen / Medium','Wattsammler','zuletzt bei Dr. Bisam','—','Schutzbefohlene','Junges Maedchen mit goldglimmenden Adern und einer Verbindung zu der singenden Kiste. In „Das Auge des Sturms“ gerettet, danach in Bisams Obhut.','',0],
+  ['haifisch-vester','Jens „Haifisch“ Vester','Ork, Likedeeler-Anfuehrer','Likedeeler','St. Pauli / Hafen','Vorherrschaft unter den Piraten','Windig / unzuverlaessig','Bot in „Das Auge des Sturms“ einen falschen Bergungsjob an, der ein Massaker an Wattsammlern gewesen waere. Die Runner lehnten ab.','',0],
 ];
 const insConn = db.prepare(`INSERT OR IGNORE INTO connections (slug,name,role,faction,location,preferences,status,history,shared_by,campaign_relevant) VALUES (?,?,?,?,?,?,?,?,?,?)`);
 if (db.prepare('SELECT COUNT(*) c FROM connections').get().c === 0)
@@ -188,10 +190,10 @@ const runs = [
   { slug:'run-0', number:'Run 0', title:'Die undichte Stelle', date_played:'Vor dem Orkan „Njord“',
     participants:'Random, Multitool, Mondkind',
     location:'HafenCity · Wilhelmsburg · St. Pauli', time_from:'früher Abend', time_to:'Nacht (kurz vor der Flut)',
-    karma:'6', nuyen:'2.500¥ pro Person (Ältermänner)', loot:'—',
+    karma:'6', nuyen:'2.500¥ pro Person', loot:'—',
     new_connections:'Konsul Jürgen Groot, Dr. Arvid Foss', involved_connections:'Konsul Jürgen Groot',
-    actors:'Ältermänner · Proteus (Eingreifteam) · Tech-Squatter („Rust-Punx“)',
-    summary:`Konsul Groot heuerte die Runner in der Elbphilharmonie an, einen abtrünnigen Proteus-Analysten — Dr. Arvid Foss — aus einem stillgelegten Pumpwerk in Wilhelmsburg zu holen, bevor der Konzern ihn zum Schweigen brachte. Während draußen die Flut stieg, verteidigten die Runner Foss gegen ein Proteus-Eingreifteam, töteten mehrere der Operativen und brachten ihn samt seinem Datenchip sicher zum „Klabautermann“. Auf dem Chip ein Codewort: „Medusa“. Beim Katerfrühstück im Diner stießen Sparks und Bull dazu — und die Runde war sich einig: Man kann die Menschen nicht einfach absaufen lassen.` },
+    actors:'Proteus (Eingreifteam) · Tech-Squatter („Rust-Punx“)',
+    summary:`Sturmtief Njord baute sich ueber Hamburg auf, als Konsul Juergen Groot die Runner in den VIP-Bereich der Elbphilharmonie bestellte — teurer Kaffee, Panoramablick auf den absaufenden Hafen. Der Auftrag: den abtruennigen Proteus-Hydrologen Dr. Arvid Foss lebend aus einem stillgelegten Pumpwerk in Wilhelmsburg holen, samt der Beweise, die er bei sich trug — bevor der Konzern ihn zum Schweigen brachte. Der Weg nach Wildost wurde zur Zeitreise in den Abgrund: knoecheltiefes Elbwasser, Pluenderer, eine Zollstation lokaler Ganger. Im Pumpwerk hatte sich Foss bei einer Kommune von Tech-Squattern verschanzt; erst nachdem die Runner bewiesen, dass sie gegen Proteus standen, liess man sie zu ihm. Foss war paranoid, auf seinem Datenchip ein Codewort: Medusa. Kaum hatten sie ihn, schlug ein Proteus-Eingreifteam zu — lautlose Profis, schwarze Panzerung, Kampfdrohne. Von den Laufstegen aus schlugen die Runner sie zurueck, toeteten mehrere Operative und flohen mit Foss durch einen Wartungsschacht in den Sturm. Im Klabautermann in St. Pauli uebergaben sie Foss und Chip an Groot. Beim Katerfruehstueck stiessen Sparks und Bull dazu — frisch aus einer Clubnacht — und die Runde war sich einig: Man kann die Menschen nicht einfach absaufen lassen.` },
   { slug:'run-1', number:'Run 1', title:'Das Auge des Sturms', date_played:'Orkan „Njord“, Nacht',
     participants:'Random, Multitool, Mondkind, Bull, Sparks',
     location:'St. Pauli · Finkenwerder · Nordsee/Watt · Flak-Turm', time_from:'Abend ~20:00', time_to:'tiefe Nacht ~23:45',
@@ -199,7 +201,7 @@ const runs = [
     new_connections:'Käpt’n Svenja, Olaf „Schlickteufel“, Dr. Bisam, Juna',
     involved_connections:'Käpt’n Svenja',
     actors:'Likedeeler (Svenja & Vester) · Rote Korsaren · Wattsammler · ein Wasser-Avatar · Proteus (Drohne/Beobachter)',
-    summary:`Im „Klabautermann“ bot der Ork Jens „Haifisch“ Vester einen zwielichtigen Bergungsjob an — die Runner lehnten ab. Auf eigene Faust steuerten sie ein Sperrwerk an und brachten mit dem Hacker-Kontakt von Multitool die Flutschutztore gerade noch unter Kontrolle. Dann nahmen sie Käpt’n Svenjas Auftrag an und fuhren raus aufs Watt, zu einem alten Flak-Turm voller Wattsammler. Dort fanden sie ein seltsames, „singendes“ Objekt — und gerieten zwischen die Roten Korsaren und etwas weit Größeres: einen gewaltigen Avatar aus Wasser, der die Angreifer verschlang. Sie töteten den Korsaren-Anführer, retteten die Wattsammler und übergaben die magisch verschleierte Kiste an Svenja. Das Mädchen Juna kam zu Dr. Bisam.` },
+    summary:`Noch im Klabautermann, auf dem Hoehepunkt des Orkans, draengte sich der Ork Jens „Haifisch“ Vester mit seinen Likedeelern an die Bar und bot einen „Bergungsjob“ auf einem alten Flak-Turm im Watt — die Runner lehnten ab. Stattdessen nahmen sie sich der Schleusen-Sache an: ueber einen Hacker-Kontakt von Multitool griffen sie an einem Sperrwerk ins System ein und brachten die Flutschutztore gerade noch unter Kontrolle. Dann zu Kaeptn Svenja nach Finkenwerder, Dock 4. Sie war verletzt, ihre Leute — Wattsammler unter Olaf „Schlickteufel“ — sassen auf dem Flak-Turm Trutzburg weit draussen fest. Mit Svenjas gepanzertem Boot „Die Nadel“ stachen die Runner in den Orkan; eine Proteus-Drohne der Manta-Klasse beschattete sie, ein abgefangenes Protokoll zeigte: Sie wurden absichtlich durchgelassen, als Koeder. Im Turm fanden sie die kranken Wattsammler — und Juna, ein Maedchen mit schwach golden leuchtenden Adern, das eine singende Kiste umklammerte. Dann stuermten die Roten Korsaren auf Kampfdroge den Turm. Die Runner verteidigten die Zivilisten und toeteten den Anfuehrer, den Maat. Auf dem Hoehepunkt zog sich das Wasser zurueck — und ein gewaltiger Avatar aus Wasser, Wrackteilen und Phosphor erhob sich, zermalmte die Korsaren-Boote und verschluckte den Maat. Die Runner flohen, retteten die Wattsammler und uebergaben die magisch verschleierte Kiste an Svenja. Das katatonische Maedchen Juna nahm der Strassendoc Dr. Bisam mit in seine Klinik.` },
   { slug:'run-2', number:'Run 2', title:'Kein Ort zum Heilen', date_played:'Der Morgen nach dem Sturm',
     participants:'Bull, Mondkind, Ronin, Multitool',
     location:'Steilshoop', time_from:'Morgen nach dem Sturm', time_to:'später Vormittag',
@@ -208,9 +210,9 @@ const runs = [
     loot:'Medikament (Auftragsziel) + verkaufter Depot-Loot',
     new_connections:'—', involved_connections:'Dr. Bisam',
     actors:'Bakhtari-Clan · Vory · unbekanntes Extraktionsteam',
-    summary:`In Dr. Bisams Klinik in Steilshoop trafen die Runner auf Ronin und übernahmen einen Auftrag: dringend benötigtes Medikament für die kranke Juna aus einem von den Bakhtari kontrollierten Depot beschaffen. Beim Zugriff kreuzten sich ihre Wege mit der Vory. Als sie zurückkamen, war ein Team gut ausgerüsteter Profis dabei, Juna aus der Klinik zu entführen — jemand mit Geld will das Mädchen. Die Runner schlugen den Zugriff zurück, verhörten und „entsorgten“ über die Triaden einen Gefangenen und brachten Juna in Sicherheit.` },
+    summary:`Der Morgen nach dem Sturm, Steilshoop. In Dr. Bisams Klinik trafen die Runner auf Ronin und auf Juna, die in der Nacht schwere Anfaelle gehabt hatte — ihr Nervensystem reagierte auf etwas, das nicht physisch war. Bisam brauchte dringend Neocortizin, ein seltenes Antikonvulsivum; sein Vorrat lag in einem von den Bakhtari kontrollierten ehemaligen Sanitaetsstuetzpunkt. Selbst hin konnte er nicht — also uebernahmen die Runner. Im Depot zwischen surrenden Kuehlkammern kreuzten sich ihre Wege mit der Vory, die dieselbe Idee hatte; man einigte sich pragmatisch, die Runner sicherten das Medikament. Doch als sie zurueckkamen, war ein Team gut ausgeruesteter Profis in Zivil dabei, Juna zu entfuehren — jemand mit Geld wollte das Maedchen. Die Runner schlugen den Zugriff zurueck, Bisam kam mit einem blauen Auge davon. Ueber die Triaden liessen sie einen Gefangenen verhoeren und entsorgen und brachten Juna in Sicherheit. Pater Gregor vom Weg der Reinheit, der gegenueber eine Suppenkueche betrieb, half nach dem Angriff aus und bot der Klinik seinen Schutz an.` },
   { slug:'retten-seebunker-kid', number:'', title:'Retten des reichen Kids aus dem Seebunker', date_played:'vor den HDL-Runs', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:5 },
-  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', summary:'Weihnachtsrun. Details werden von der Spielleitung (Benjamin) ergaenzt.', owner:'benjamin', sort:7 },
+  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', summary:`Weihnachten in Hamburg. Auf einem Weihnachtsmarkt trat ein Johnson an die Runner heran. Im Umfeld: Werbung fuer „SKAD“ und einen „Ruprecht 3000“ — und der undurchsichtige Van den Berg. Ueber Pier, Hafenueberwachung und ein Gang-Lager fuehrte die Spur aufs Wasser, an Bord der „MS Hanseteufel“. Dort wurde es duester: ein Gang-Massaker, Ghule unter Deck, der „Kapitaen Klabauter“. Mitten in der Aktion stuermte HanSec das Schiff. Am Ende stand eine Uebergabe an einem abgelegenen Ort — und Schlagzeilen ueber die MS und die „WarLeague“. (Entwurf aus den Bildern — Benjamin, bitte als Owner Reihenfolge und Details praezisieren.)`, owner:'benjamin', sort:7 },
   { slug:'vier-naegel', number:'', title:'4 Naegel stehlen', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:40 },
   { slug:'zenzus-retten', number:'', title:'Zenzus retten', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:50 },
   { slug:'klaerwerk-toxischer-geist', number:'', title:'Klaerwerk - Toxischer Geist', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:60 },
@@ -228,6 +230,12 @@ for (const r of runs) {
   insRun.run(...rcols.map(c => (r[c] == null ? '' : r[c])), oid, so);
   bfRun.run(r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', oid, r.slug);
 }
+
+// Run-Bilder (nur setzen, wenn noch keine vorhanden)
+let runImgs = {};
+try { runImgs = require('./run_images.json'); } catch (e) {}
+const bfRunImg = db.prepare("UPDATE runs SET images=? WHERE slug=? AND (images IS NULL OR images='' OR images='[]')");
+for (const [sl, arr] of Object.entries(runImgs)) bfRunImg.run(JSON.stringify(arr), sl);
 
 // ---------- TIMELINE ----------
 const tl = [
@@ -268,8 +276,6 @@ if (db.prepare('SELECT COUNT(*) c FROM maps').get().c === 0)
 const factions = [
   ['likedeeler','Likedeeler','Piraten / Freibeuter','Gemischt',
    'Die freien Schiffer und Schmuggler der Elbe. Gespalten: ein traditioneller Fluegel um Kaeptn Svenja haelt zur Stadt, andere wie Jens Vester spielen ihr eigenes Spiel.','Kaeptn Svenja, Jens „Haifisch“ Vester, Warentester Klaas',10],
-  ['aeltermaenner','Die Aeltermaenner','Hanseatische Elite','Auftraggeber',
-   'Die alte Hamburger Garde — Politik, Geld, Diskretion. Heuern die Runner ueber Mittelsmaenner an und zahlen gut.','Konsul Juergen Groot, Senator Julian von Ahrensburg',20],
   ['proteus','Proteus','Konzern (AA)','Undurchsichtig / gegnerisch',
    'Ein verschwiegener Meerestechnik-Konzern mit Arkologien in der Nordsee. Die Runde geriet bereits mit Proteus aneinander. Was sie wirklich vorhaben, ist offen.','—',30],
   ['mandelzirkel','Mandelzirkel','Spirituelle Gemeinschaft','Verbuendet / neutral',
@@ -277,11 +283,11 @@ const factions = [
   ['wattsammler','Wattsammler','Kommune','Neutral / schutzbeduerftig',
    'Eine raue Gemeinschaft, die im Watt von dem lebt, was die Gezeiten freigeben. In Run 1 vom Flak-Turm gerettet.','Olaf „Schlickteufel“, Juna',50],
   ['rote-korsaren','Rote Korsaren','Piraten','Feindlich',
-   'Brutale, drogengepushte Freibeuter, die in fremden Revieren wildern. In Run 1 stuermten sie den Flak-Turm.','Der Maat (gefallen)',60],
+   'Brutale, drogengepushte Freibeuter, die in fremden Revieren wildern. In „Das Auge des Sturms“ stuermten sie den Flak-Turm.','Der Maat (gefallen)',60],
   ['vory','Vory v Zakone','Syndikat','Neutral (pragmatisch)',
-   'Russisches Verbrechersyndikat, kontrolliert Logistik und Schwarzmarkt. In Run 2 kreuzten sich die Wege im Depot.','—',70],
+   'Russisches Verbrechersyndikat, kontrolliert Logistik und Schwarzmarkt. In „Kein Ort zum Heilen“ kreuzten sich die Wege im Depot.','—',70],
   ['triaden','Triaden','Syndikat','Dienstleister (neutral)',
-   'Spezialisiert auf diskrete Dienste, Artefakte und Schmuggel. In Run 2 fuer Verhoer und Entsorgung engagiert.','—',80],
+   'Spezialisiert auf diskrete Dienste, Artefakte und Schmuggel. In „Kein Ort zum Heilen“ fuer Verhoer und Entsorgung engagiert.','—',80],
   ['bakhtari-clan','Bakhtari-Clan','Lokaler Clan','Neutral (territorial)',
    'Beherrscht Teile von Steilshoop; pragmatisch, solange man sein Revier respektiert.','Cihan Bakhtari',90],
   ['weg-der-reinheit','Weg der Reinheit','Buergerbewegung','Hilfsbereit (Stand des Wissens)',
@@ -293,25 +299,27 @@ if (db.prepare('SELECT COUNT(*) c FROM factions').get().c === 0)
 
 
 // ---------- Connections: Einflussstufen (aus den Charakterboegen) ----------
-const infl = { 'dr-bisam':'4','svenja':'4','senator-von-ahrensburg':'6','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5' };
+const infl = { 'dr-bisam':'4','svenja':'4','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5' };
 const bfInf = db.prepare('UPDATE connections SET influence=COALESCE(influence,?) WHERE slug=?');
 for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
 
 // ---------- LOCATIONS (Spielerwissen, spoilerfrei) ----------
 const locations = [
   ['klabautermann','Der Klabautermann','St. Pauli','Schatten-Kneipe','Anlaufpunkt / neutraler Boden','Kellerkneipe und Umschlagplatz fuer Auftraege. Hier nahm vieles seinen Anfang.','—',10],
-  ['bisam-klinik','Dr. Bisams Klinik','Steilshoop (an der Friedhofsmauer)','Strassenklinik','Sicherer Hafen','Behandelt jeden ohne SIN-Fragen. In Run 2 von Profis angegriffen.','Dr. Bisam',20],
+  ['bisam-klinik','Dr. Bisams Klinik','Steilshoop (an der Friedhofsmauer)','Strassenklinik','Sicherer Hafen','Behandelt jeden ohne SIN-Fragen. In „Kein Ort zum Heilen“ von Profis angegriffen.','Dr. Bisam',20],
   ['dock-4','Dock 4','Finkenwerder','Wartungsdock','Likedeeler-Stuetzpunkt','Svenjas geheimes Dock und Heimathafen der „Trotzdem“.','Kaeptn Svenja',30],
-  ['flak-turm','Flak-Turm „Trutzburg“','Nordsee / Watt','Alter Flakturm','Wattsammler-Basis','Aus dem Wasser ragender Betonturm; in Run 1 Schauplatz des Korsaren-Angriffs.','Olaf „Schlickteufel“',40],
+  ['flak-turm','Flak-Turm „Trutzburg“','Nordsee / Watt','Alter Flakturm','Wattsammler-Basis','Aus dem Wasser ragender Betonturm; in „Das Auge des Sturms“ Schauplatz des Korsaren-Angriffs.','Olaf „Schlickteufel“',40],
   ['steilshoop','Steilshoop','Bezirk Wandsbek','Hochhaus-Kiez','Territorium','Grauer Plattenbau-Kiez; Platzhirsch ist der Bakhtari-Clan. Bisams Revier.','Bakhtari-Clan',50],
-  ['sanitaetsstuetzpunkt','Ehemaliger Sanitaetsstuetzpunkt','Steilshoop','Aufgegebenes Depot','Bakhtari-Lager','Notversorgung nach der Schwarzen Flut, heute Bakhtari-Kuehllager (Run 2).','—',60],
-  ['schwarzer-garten','Der Schwarze Garten','Wildost (sued der Elbe)','Verwildertes Grundstueck','Unheimlich / versiegelt','Ein stiller, abweisender Ort, der „zuhoert“. Bisher nichts zu holen — nur Gaensehaut.','—',70],
+  ['sanitaetsstuetzpunkt','Ehemaliger Sanitaetsstuetzpunkt','Steilshoop','Aufgegebenes Depot','Bakhtari-Lager','Notversorgung nach der Schwarzen Flut, heute Bakhtari-Kuehllager („Kein Ort zum Heilen“).','—',60],
   ['ohlsdorfer-friedhof','Ohlsdorfer Friedhof','Ohlsdorf','Friedhof','Neutraler Boden','Weitlaeufiges, stilles Reich; Treffpunkt im Schatten.','—',80],
-  ['elbphilharmonie','Elbphilharmonie','HafenCity','Wahrzeichen / VIP','Treffpunkt der feinen Leute','Glaeserner Elfenbeinturm ueber dem Hafen; Schauplatz des Auftrags in Run 0.','—',90],
+  ['elbphilharmonie','Elbphilharmonie','HafenCity','Wahrzeichen / VIP','Treffpunkt der feinen Leute','Glaeserner Elfenbeinturm ueber dem Hafen; Schauplatz des Auftrags in „Die undichte Stelle“.','—',90],
 ];
 const insLoc = db.prepare(`INSERT OR IGNORE INTO locations (slug,name,area,type,status,description,notable,sort) VALUES (?,?,?,?,?,?,?,?)`);
 if (db.prepare('SELECT COUNT(*) c FROM locations').get().c === 0)
   for (const l of locations) insLoc.run(...l);
 
+try { db.prepare('DELETE FROM locations WHERE slug=?').run('schwarzer-garten'); } catch (e) {}
+try { db.prepare('DELETE FROM factions WHERE slug=?').run('aeltermaenner'); } catch (e) {}
+try { db.prepare('DELETE FROM connections WHERE slug=?').run('senator-von-ahrensburg'); } catch (e) {}
 console.log('Seed OK. Default-Passwort fuer alle Logins:', PW);
 console.log('Logins:', users.map(u=>u[0]).join(', '));

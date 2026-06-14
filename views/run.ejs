@@ -20,6 +20,6 @@
 <% } %>
 <h2>Bericht</h2>
 <div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= r.summary %></div></div>
-<% if(r.imageList.length){ %><h2>Bilder</h2><div class="gallery"><% r.imageList.forEach(i=>{ %><a href="/uploads/<%= i %>" target="_blank"><img src="/uploads/<%= i %>"></a><% }); %></div><% } %>
+<% if(r.imageList.length){ %><h2>Bilder</h2><div class="gallery"><% r.imageList.forEach(i=>{ %><a href="<%= i.indexOf('/static')===0?i:'/uploads/'+i %>" target="_blank"><img src="<%= i.indexOf('/static')===0?i:'/uploads/'+i %>"></a><% }); %></div><% } %>
 <div style="margin-top:22px;display:flex;gap:14px;align-items:center"><a href="/runs">&larr; Logbuch</a><% if(isOwner){ %><a class="btn ghost" href="/runs/<%= r.slug %>/edit">Bearbeiten</a><% } %></div>
 <%- include('partials/footer') %>

@@ -3,7 +3,7 @@
 <div class="sub">Bespielte NSCs · Ort · Status · Historie</div>
 <div class="grid cols3">
 <% rows.forEach(x=>{ %>
-  <a class="card" href="/connections/<%= x.slug %>" <% if(x.campaign_relevant){ %>style="border-color:var(--amber)"<% } %>>
+  <a class="card" href="/connections/<%= x.slug %>">
     <% if(x.image){ %><img class="thumb" src="/uploads/<%= x.image %>"><% } %>
     <div class="body">
       <h3><%= x.name %></h3>
@@ -11,7 +11,7 @@
       <p><%= x.location %></p>
       <div style="margin-top:8px">
         <% if(x.influence){ %><span class="pill amber">Einfluss <%= x.influence %></span><% } %><% if(x.faction){ %><span class="pill green"><%= x.faction %></span><% } %>
-        <% if(x.campaign_relevant){ %><span class="pill amber">Kampagnen-relevant</span><% } %>
+        
       </div>
     </div>
   </a>

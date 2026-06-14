@@ -9,7 +9,7 @@
       <dt>Stadtteil / Lage</dt><dd><%= l.area||'—' %></dd>
       <dt>Typ</dt><dd><%= l.type||'—' %></dd>
       <dt>Status</dt><dd><%= l.status||'—' %></dd>
-      <% if(l.notable && l.notable!=='—'){ %><dt>Wer/Was</dt><dd><%= l.notable %></dd><% } %>
+      <% if(notableLinks.length){ %><dt>Wer/Was</dt><dd><% notableLinks.forEach(function(m,i){ %><%- i?', ':'' %><% if(m.slug){ %><a href="/connections/<%= m.slug %>"><%= m.name %></a><% }else{ %><%= m.name %><% } %><% }); %></dd><% } %>
     </dl>
   </div>
   <% if(l.description){ %><div style="white-space:pre-line;margin-top:12px;font-size:14.5px"><%= l.description %></div><% } %>

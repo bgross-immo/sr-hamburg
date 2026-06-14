@@ -4,7 +4,7 @@
 <div class="grid cols2">
 <% rows.forEach(r=>{ var imgs=JSON.parse(r.images||'[]'); %>
   <a class="card" href="/runs/<%= r.slug %>">
-    <% if(imgs[0]){ %><img class="thumb" src="/uploads/<%= imgs[0] %>"><% } %>
+    <% if(imgs[0]){ %><img class="thumb" src="<%= imgs[0].indexOf('/static')===0?imgs[0]:'/uploads/'+imgs[0] %>"><% } %>
     <div class="body"><div class="meta"><%= r.number %> · <%= r.date_played||'' %></div><h3><%= r.title %></h3>
       <% if(r.participants){ %><div class="dim mono" style="font-size:11px;margin:2px 0"><%= r.participants %></div><% } %>
       <p><%= (r.summary||'').slice(0,150) %>…</p></div>

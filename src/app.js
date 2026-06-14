@@ -317,6 +317,12 @@ app.post('/sl/maps', requireSL, upload.single('image'), (req, res) => {
   res.redirect('/maps');
 });
 
+function linkifyNames(str) {
+  if (!str) return [];
+  const norm = x => x.toLowerCase().replace(/[\u2018\u2019\u201A\u201C\u201D\u201E'`]/g, '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g, ' ').trim();
+  const map = {}; for (const c of db.prepare('SELECT slug,name FROM connections').all()) map[norm(c.name)] = c.slug;
+  return str.split(/[,·;]/).map(x => x.trim()).filter(Boolean).map(name => ({ name, slug: map[norm(name.replace(/\(.*?\)/g, '').trim())] || null }));
+}
 // ---------- FRAKTIONEN ----------
 app.get('/factions', (req, res) => {
   const rows = db.prepare('SELECT * FROM factions ORDER BY sort, name').all();
@@ -325,7 +331,7 @@ app.get('/factions', (req, res) => {
 app.get('/factions/:slug', (req, res) => {
   const f = db.prepare('SELECT * FROM factions WHERE slug=?').get(req.params.slug);
   if (!f) return res.status(404).render('error', { title: '404', msg: 'Fraktion nicht gefunden.' });
-  res.render('faction', { title: f.name, f });
+  res.render('faction', { title: f.name, f, memberLinks: linkifyNames(f.notable_members) });
 });
 app.post('/sl/factions', requireSL, (req, res) => {
   const slug = (req.body.name || ('fraktion-' + Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -353,7 +359,7 @@ app.get('/locations', (req, res) => {
 app.get('/locations/:slug', (req, res) => {
   const l = db.prepare('SELECT * FROM locations WHERE slug=?').get(req.params.slug);
   if (!l) return res.status(404).render('error', { title: '404', msg: 'Location nicht gefunden.' });
-  res.render('location', { title: l.name, l });
+  res.render('location', { title: l.name, l, notableLinks: linkifyNames(l.notable) });
 });
 app.post('/sl/locations', requireSL, (req, res) => {
   const slug = (req.body.name || ('ort-' + Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, '-');

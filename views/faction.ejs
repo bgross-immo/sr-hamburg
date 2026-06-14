@@ -8,7 +8,7 @@
     <dl class="kv" style="flex:1;min-width:260px">
       <dt>Kategorie</dt><dd><%= f.category||'—' %></dd>
       <dt>Status / Beziehung</dt><dd><%= f.status||'—' %></dd>
-      <% if(f.notable_members){ %><dt>Bekannte Köpfe</dt><dd><%= f.notable_members %></dd><% } %>
+      <% if(memberLinks.length){ %><dt>Bekannte Köpfe</dt><dd><% memberLinks.forEach(function(m,i){ %><%- i?', ':'' %><% if(m.slug){ %><a href="/connections/<%= m.slug %>"><%= m.name %></a><% }else{ %><%= m.name %><% } %><% }); %></dd><% } %>
     </dl>
   </div>
   <% if(f.description){ %><div style="white-space:pre-line;margin-top:12px;font-size:14.5px"><%= f.description %></div><% } %>
