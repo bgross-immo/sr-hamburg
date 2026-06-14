@@ -89,16 +89,59 @@ app.get('/', (req, res) => {
 });
 
 // ---------- CHARACTERS ----------
+const uploadDoc = multer({
+  storage: multer.diskStorage({ destination: (r, f, cb) => cb(null, UPLOAD_DIR), filename: (r, f, cb) => cb(null, Date.now() + '-' + f.originalname.replace(/[^a-zA-Z0-9._-]/g, '_')) }),
+  limits: { fileSize: 25 * 1024 * 1024 },
+  fileFilter: (r, f, cb) => cb(null, /^image\/|application\/pdf/.test(f.mimetype)),
+});
+function loadChar(req, res, next) {
+  req.char = db.prepare('SELECT * FROM characters WHERE slug=?').get(req.params.slug);
+  if (!req.char) return res.status(404).render('error', { title: '404', msg: 'Runner nicht gefunden.' });
+  next();
+}
+function mayEditChar(req, res) { const u = res.locals.user, c = req.char; return u.role === 'sl' || (c.owner_id && c.owner_id === u.id); }
+
 app.get('/characters', (req, res) => {
   const rows = db.prepare('SELECT * FROM characters ORDER BY sort').all();
   const byPlayer = {};
   for (const c of rows) (byPlayer[c.player || '—'] ||= []).push(c);
   res.render('characters', { title: 'Runner', byPlayer });
 });
-app.get('/characters/:slug', (req, res) => {
-  const c = db.prepare('SELECT * FROM characters WHERE slug=?').get(req.params.slug);
-  if (!c) return res.status(404).render('error', { title: '404', msg: 'Runner nicht gefunden.' });
-  res.render('character', { title: c.name, c });
+app.get('/characters/:slug', loadChar, (req, res) => {
+  const c = req.char, u = res.locals.user;
+  const canEdit = mayEditChar(req, res);
+  const conns = db.prepare("SELECT * FROM connections WHERE shared_by LIKE '%'||?||'%' ORDER BY campaign_relevant DESC, name").all(c.name);
+  const runs = db.prepare("SELECT slug,number,title,date_played FROM runs WHERE participants LIKE '%'||?||'%' ORDER BY sort").all(c.name);
+  const logs = canEdit ? db.prepare('SELECT * FROM char_logs WHERE char_slug=? ORDER BY created_at DESC').all(c.slug) : [];
+  res.render('character', { title: c.name, c, canEdit, conns, runs, logs });
+});
+app.post('/characters/:slug', loadChar, (req, res) => {
+  if (!mayEditChar(req, res)) return res.status(403).render('error', { title: 'Kein Zugriff', msg: 'Nur SL oder der eigene Spieler.' });
+  const b = req.body;
+  db.prepare('UPDATE characters SET name=?,metatype=?,archetype=?,johnson_dossier=?,highlight_skills=?,sl_summary=?,background=? WHERE slug=?')
+    .run(b.name || req.char.name, b.metatype || '', b.archetype || '', b.johnson_dossier || '', b.highlight_skills || '', b.sl_summary || '', b.background || '', req.char.slug);
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/sheet', loadChar, uploadDoc.single('sheet'), (req, res) => {
+  if (req.file) db.prepare('UPDATE characters SET sheet=? WHERE slug=?').run(req.file.filename, req.char.slug);
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/image', loadChar, upload.single('image'), (req, res) => {
+  if (!mayEditChar(req, res)) return res.status(403).end();
+  if (req.file) db.prepare('UPDATE characters SET image=? WHERE slug=?').run(req.file.filename, req.char.slug);
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/log', loadChar, (req, res) => {
+  if (!mayEditChar(req, res)) return res.status(403).end();
+  const u = res.locals.user;
+  db.prepare('INSERT INTO char_logs (char_slug,user_id,author,title,body,created_at) VALUES (?,?,?,?,?,?)')
+    .run(req.char.slug, u.id, u.display_name, req.body.title || '', req.body.body || '', new Date().toISOString());
+  res.redirect('/characters/' + req.char.slug);
+});
+app.post('/characters/:slug/log/:id/delete', loadChar, (req, res) => {
+  const u = res.locals.user, log = db.prepare('SELECT * FROM char_logs WHERE id=?').get(req.params.id);
+  if (log && (log.user_id === u.id || u.role === 'sl')) db.prepare('DELETE FROM char_logs WHERE id=?').run(log.id);
+  res.redirect('/characters/' + req.char.slug);
 });
 
 // ---------- CONNECTIONS ----------

@@ -1,13 +1,13 @@
 <%- include('partials/header',{title}) %>
 <h1><span class="pre">//</span> Runner</h1>
-<div class="sub">Wer in Hamburg unterwegs ist · gruppiert nach Spieler</div>
+<div class="sub">Aktive Schatten der Hamburger Runde</div>
 <% Object.keys(byPlayer).forEach(pl=>{ %>
   <h2><%= pl %></h2>
   <div class="grid cols3">
   <% byPlayer[pl].forEach(c=>{ %>
     <a class="card" href="/characters/<%= c.slug %>">
-      <% if(c.image){ %><img class="thumb" src="/uploads/<%= c.image %>"><% } %>
-      <div class="body"><h3><%= c.name %></h3><div class="meta"><%= c.metatype %></div><p><%= c.archetype %></p></div>
+      <% if(c.image){ %><img class="thumb" src="/uploads/<%= c.image %>"><% } else { %><div class="thumb noimg"></div><% } %>
+      <div class="body"><h3><%= c.name %></h3><div class="meta"><%= c.archetype||'—' %></div></div>
     </a>
   <% }); %>
   </div>

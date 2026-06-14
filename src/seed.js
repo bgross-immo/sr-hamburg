@@ -97,6 +97,34 @@ const insChar = db.prepare(`INSERT OR IGNORE INTO characters (slug,name,player,m
 const upChar = db.prepare(`UPDATE characters SET name=?,player=?,metatype=?,archetype=?,magic=?,profile=?,signature=?,hooks=?,contacts=?,sort=? WHERE slug=?`);
 for (const c of characters){ insChar.run(...c); upChar.run(c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[10],c[0]); }
 
+
+// ---------- Charakter: Owner-Zuordnung + Johnson-Backfill ----------
+const userByName = {};
+for (const u of db.prepare('SELECT id,display_name,username FROM users').all()) {
+  userByName[(u.display_name||'').toLowerCase()] = u.id;
+  userByName[(u.username||'').toLowerCase()] = u.id;
+}
+const dossiers = {
+  'buffy':['Erwachte Magierin mit Spezialgebiet Geister — Beschwoeren und Bannen. Albino, faellt auf, gilt als Beschuetzertyp. Teuer, aber grundsolide bei allem Astralen.','Beschwoeren · Bannen · Astralkampf · Heilung'],
+  'kapitaen-flint':['Ork-Rigger und Schmuggler mit eigenem U-Boot. Kennt jede Route auf der Elbe, redet viel, liefert meist.','Schiffe/Boote · Riggen · Schmuggel · Geschuetze'],
+  'kiezchronist':['Elf, Decker und wandelndes Adressbuch des Kiez. Weiss, was auf der Strasse laeuft, verkauft Infos. Immer pleite.','Hacking · Matrix · Infohandel · Kiez-Kontakte'],
+  'mondkind':['Eleganter Elf, Magier und Geschichtenerzaehler. Bestens vernetzt bis in hohe Kreise, charmanter Verhandler.','Ritualmagie · Beschwoeren · Verhandlung · Beziehungen'],
+  'al-be-rich':['Zwergischer Technomancer und Mechaniker-Allrounder mit gepanzertem Werkstatt-Fahrzeug. Eigenbroetlerisch, paranoid.','Technomantie · Maschinen · Fahrzeuge · Drohnen'],
+  'seven-lifes':['Saechsischer Decker, drogen- und tech-gepusht, mit Drohnen-Support. Flexibel, etwas chaotisch.','Hacking · Drohnen · Chemie · Schusswaffen'],
+  'bull':['Junger Minotaurus, erwachter Nahkaempfer mit Hoernern und Bogen. Tuersteher, tierverbunden, brutal im Clinch.','Nahkampf · Bogen · Adeptenkraefte · Natur'],
+  'ermina':['Elfische Verhandlerin der Oberklasse, vielsprachig, betoerend. Oeffnet Tueren, die anderen verschlossen bleiben.','Verhandlung · Fuehrung · Etikette · Sprachen'],
+  'walpurga':['Menschliche Hexe, Heil- und Unterstuetzungsmagie, Mitglied eines Zirkels. Haelt das Team am Leben.','Heilzauber · Rituale · Abwehrmagie'],
+  'ronin':['Schwer verkyberter Strassensamurai. Schnell, toedlich mit Klinge und Pistole. Wenig Worte.','Klingen · Pistolen · Akrobatik · Infiltration'],
+  'patchdoc':['Erwachter Strassendoc mit Tech-Schlag — flickt Koerper und Code gleichermassen. Ungewoehnliche Erscheinung.','Medizin · Magie · Computer/Hardware · Hacking'],
+  'sparks':['Hobgoblin-Chaosmagier, unberechenbar. War schon vor dem Job auf der Tanzflaeche.','Chaosmagie · Zauber'],
+};
+const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?) WHERE slug=?');
+for (const c of characters) {
+  const oid = userByName[(c[2]||'').toLowerCase()] || null;
+  const d = dossiers[c[0]] || [null,null];
+  bfChar.run(oid, d[0], d[1], c[0]);
+}
+
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
 const connections = [
   ['dr-bisam','Dr. Bisam','Straßendoc','Mandelzirkel / Ghule (Verbündete)','Steilshoop, an der Friedhofsmauer','Behandelt jeden ohne SIN-Fragen; Barzahlung; Zigaretten','Verbündeter',

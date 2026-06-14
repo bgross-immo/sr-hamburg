@@ -62,4 +62,13 @@ try {
   for (const [c,t] of Object.entries(add)) if (!rc.includes(c)) db.exec(`ALTER TABLE runs ADD COLUMN ${c} ${t}`);
 } catch (e) { console.error('run migration', e); }
 
+// --- Migration: erweiterte Charakter-Felder + Char-Logs ---
+try {
+  const cc = db.prepare("PRAGMA table_info(characters)").all().map(c => c.name);
+  const addc = { owner_id:'INTEGER', johnson_dossier:'TEXT', highlight_skills:'TEXT', sl_summary:'TEXT', background:'TEXT', sheet:'TEXT' };
+  for (const [c,t] of Object.entries(addc)) if (!cc.includes(c)) db.exec(`ALTER TABLE characters ADD COLUMN ${c} ${t}`);
+} catch (e) { console.error('char migration', e); }
+db.exec(`CREATE TABLE IF NOT EXISTS char_logs (
+  id INTEGER PRIMARY KEY, char_slug TEXT NOT NULL, user_id INTEGER, author TEXT, title TEXT, body TEXT, created_at TEXT);`);
+
 module.exports = db;

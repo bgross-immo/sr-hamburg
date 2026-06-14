@@ -157,3 +157,9 @@ hr.sep{border:none;border-top:1px solid var(--line2);margin:18px 0}
 .dossier-tag{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--amber);text-transform:uppercase}
 .kopf .kv{grid-template-columns:170px 1fr;gap:8px 16px}
 .pillrow{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px}
+
+/* placeholders + details */
+.noimg{background:linear-gradient(135deg,#0c1a12,#0a1410);position:relative}
+.noimg::after{content:'KEIN BILD';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:1px}
+details.panel summary{list-style:none}
+details.panel summary::-webkit-details-marker{display:none}

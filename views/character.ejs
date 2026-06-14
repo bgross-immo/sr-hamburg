@@ -1,24 +1,80 @@
 <%- include('partials/header',{title}) %>
-<h1><span class="pre">//</span> <%= c.name %></h1>
-<div class="sub"><%= c.player %> · <%= c.metatype %></div>
+<div class="dossier-tag">RUNNER-DOSSIER</div>
+<h1 style="margin-top:4px"><%= c.name %></h1>
+<div class="sub"><%= c.archetype||'—' %><% if(c.metatype && c.metatype!=='—'){ %> · <%= c.metatype %><% } %><% if(c.player){ %> · Spieler: <%= c.player %><% } %></div>
+
 <div class="panel">
-  <div class="row" style="align-items:flex-start;gap:20px">
-    <% if(c.image){ %><img class="avatar" src="/uploads/<%= c.image %>"><% } %>
-    <dl class="kv" style="flex:1;min-width:280px">
-      <dt>Archetyp</dt><dd><%= c.archetype %></dd>
-      <% if(c.magic && c.magic!=='—'){ %><dt>Magie/Resonanz</dt><dd><%= c.magic %></dd><% } %>
-      <dt>Profil</dt><dd><%= c.profile %></dd>
-      <% if(c.signature && c.signature!=='—'){ %><dt>Signature</dt><dd><%= c.signature %></dd><% } %>
-      <% if(c.hooks && c.hooks!=='—'){ %><dt>Lose Enden</dt><dd><%= c.hooks %></dd><% } %>
-      <% if(c.contacts && c.contacts!=='—'){ %><dt>Kontakte</dt><dd><%= c.contacts %></dd><% } %>
-    </dl>
+  <div class="row" style="align-items:flex-start;gap:22px">
+    <div>
+      <% if(c.image){ %><img class="avatar" style="width:160px;height:160px" src="/uploads/<%= c.image %>"><% } else { %><div class="avatar noimg" style="width:160px;height:160px"></div><% } %>
+      <% if(canEdit){ %><form method="post" action="/characters/<%= c.slug %>/image" enctype="multipart/form-data" style="margin-top:8px"><input type="file" name="image" accept="image/*" style="font-size:11px"><button class="btn ghost" style="padding:6px 10px;margin-top:5px">Bild setzen</button></form><% } %>
+    </div>
+    <div style="flex:1;min-width:260px">
+      <h2 style="margin-top:0">Johnson-Dossier</h2>
+      <p style="font-size:14.5px"><%= c.johnson_dossier || 'Noch kein Dossier hinterlegt.' %></p>
+      <% if(c.highlight_skills){ %><div class="pillrow" style="margin-top:6px"><% c.highlight_skills.split(/[·,;]/).map(x=>x.trim()).filter(Boolean).forEach(x=>{ %><span class="pill green"><%= x %></span><% }); %></div><% } %>
+    </div>
   </div>
 </div>
-<% if(user.role==='sl'){ %>
-<div class="panel"><div class="meta mono" style="color:var(--red)">SL · Bild setzen</div>
-  <form method="post" action="/sl/img/character/<%= c.slug %>" enctype="multipart/form-data" class="row" style="margin-top:8px">
-    <input type="file" name="image" accept="image/*" style="max-width:280px"><button class="btn ghost">Upload</button>
-  </form></div>
+
+<h2>Charakterbogen</h2>
+<div class="panel">
+  <% if(c.sheet){ var isimg=/\.(png|jpe?g|gif|webp)$/i.test(c.sheet); %>
+    <% if(isimg){ %><a href="/uploads/<%= c.sheet %>" target="_blank"><img src="/uploads/<%= c.sheet %>" style="max-height:280px;border:1px solid var(--line2);border-radius:6px;display:block;margin-bottom:8px"></a><% } %>
+    <a class="btn ghost" href="/uploads/<%= c.sheet %>" target="_blank">Bogen öffnen</a>
+  <% } else { %><p class="dim">Noch kein Bogen hochgeladen.</p><% } %>
+  <form method="post" action="/characters/<%= c.slug %>/sheet" enctype="multipart/form-data" style="margin-top:12px">
+    <label>Bogen hochladen (PDF oder Bild) — jeder kann das aktuell</label><input type="file" name="sheet" accept="image/*,application/pdf">
+    <div style="margin-top:8px"><button class="btn">Hochladen</button></div>
+  </form>
+</div>
+
+<% if(canEdit){ %>
+<h2>SL-Zusammenfassung <span class="pill red">nur SL + Spieler</span></h2>
+<div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= c.sl_summary || 'Noch nichts hinterlegt.' %></div></div>
 <% } %>
-<p style="margin-top:14px"><a href="/characters">&larr; Alle Runner</a></p>
+
+<h2>Hintergrundstory</h2>
+<div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= c.background || 'Noch keine Hintergrundstory.' %></div></div>
+
+<% if(canEdit){ %>
+<details class="panel">
+  <summary class="mono" style="cursor:pointer;color:var(--green);user-select:none">▸ Dossier bearbeiten (SL / eigener Spieler)</summary>
+  <form method="post" action="/characters/<%= c.slug %>" style="margin-top:12px">
+    <div class="row"><div style="flex:2"><label>Name</label><input name="name" value="<%= c.name %>"></div><div style="flex:1"><label>Metatyp</label><input name="metatype" value="<%= c.metatype||'' %>"></div></div>
+    <label>Profession / Archetyp</label><input name="archetype" value="<%= c.archetype||'' %>">
+    <label>Johnson-Dossier (was ein Johnson weiss — spielerseitig)</label><textarea name="johnson_dossier" rows="3"><%= c.johnson_dossier||'' %></textarea>
+    <label>Highlight-Skills (mit · trennen)</label><input name="highlight_skills" value="<%= c.highlight_skills||'' %>">
+    <label>SL-Zusammenfassung (nur SL + eigener Spieler sichtbar)</label><textarea name="sl_summary" rows="5"><%= c.sl_summary||'' %></textarea>
+    <label>Hintergrundstory</label><textarea name="background" rows="6"><%= c.background||'' %></textarea>
+    <div style="margin-top:12px"><button class="btn">Speichern</button></div>
+  </form>
+</details>
+<% } %>
+
+<h2>Connections</h2>
+<% if(conns.length){ %><div class="grid cols3">
+<% conns.forEach(x=>{ %><a class="card" href="/connections/<%= x.slug %>"><div class="body"><h3 style="font-size:14px"><%= x.name %></h3><div class="meta"><%= x.role %></div><% if(x.location){ %><p style="margin-top:4px"><%= x.location %></p><% } %></div></a><% }); %>
+</div><div class="dim mono" style="font-size:11px;margin-top:6px">aus der Datenbank verknuepft (read-only)</div>
+<% } else { %><p class="dim">Keine Connections in der Datenbank verknuepft.</p><% } %>
+
+<h2>Logbuch</h2>
+<% if(runs.length){ %><div class="grid cols2" style="margin-bottom:14px">
+<% runs.forEach(r=>{ %><a class="card" href="/runs/<%= r.slug %>"><div class="body"><div class="meta"><%= r.number %> · <%= r.date_played||'' %></div><h3 style="font-size:14px"><%= r.title %></h3></div></a><% }); %>
+</div><% } else { %><p class="dim">Noch in keinem Run dabei gewesen.</p><% } %>
+<% if(canEdit){ %>
+  <% logs.forEach(l=>{ %>
+    <div class="note-card"><div class="mono" style="color:var(--amber);font-size:11px">@<%= l.author %> · <%= (l.created_at||'').slice(0,16).replace('T',' ') %></div>
+      <% if(l.title){ %><strong><%= l.title %></strong><br><% } %><div style="white-space:pre-line;margin-top:2px"><%= l.body %></div>
+      <form method="post" action="/characters/<%= c.slug %>/log/<%= l.id %>/delete" style="margin-top:6px"><button class="btn red" style="padding:5px 10px" onclick="return confirm('Loeschen?')">Löschen</button></form>
+    </div>
+  <% }); %>
+  <div class="panel"><div class="meta mono" style="color:var(--green)">Eigenen Log-Eintrag anlegen (Spieler &amp; SL)</div>
+    <form method="post" action="/characters/<%= c.slug %>/log">
+      <label>Titel</label><input name="title">
+      <label>Eintrag</label><textarea name="body" rows="3"></textarea>
+      <div style="margin-top:10px"><button class="btn">Speichern</button></div>
+    </form></div>
+<% } %>
+<p style="margin-top:18px"><a href="/characters">&larr; Alle Runner</a></p>
 <%- include('partials/footer') %>
