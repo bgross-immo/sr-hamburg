@@ -6,7 +6,7 @@
 <div class="panel">
   <div class="row" style="align-items:flex-start;gap:22px">
     <div>
-      <% if(c.image){ %><img class="avatar" style="width:160px;height:160px" src="/uploads/<%= c.image %>"><% } else { %><div class="avatar noimg" style="width:160px;height:160px"></div><% } %>
+      <% if(c.image){ var cs=c.image.indexOf('/static')===0?c.image:'/uploads/'+c.image; %><img class="avatar" style="width:160px;height:160px" src="<%= cs %>"><% } else { %><div class="avatar noimg" style="width:160px;height:160px"></div><% } %>
       <% if(canEdit){ %><form method="post" action="/characters/<%= c.slug %>/image" enctype="multipart/form-data" style="margin-top:8px"><input type="file" name="image" accept="image/*" style="font-size:11px"><button class="btn ghost" style="padding:6px 10px;margin-top:5px">Bild setzen</button></form><% } %>
     </div>
     <div style="flex:1;min-width:260px">

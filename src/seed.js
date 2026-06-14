@@ -118,11 +118,13 @@ const dossiers = {
   'patchdoc':['Erwachter Strassendoc mit Tech-Schlag — flickt Koerper und Code gleichermassen. Ungewoehnliche Erscheinung.','Medizin · Magie · Computer/Hardware · Hacking'],
   'sparks':['Hobgoblin-Chaosmagier, unberechenbar. War schon vor dem Job auf der Tanzflaeche.','Chaosmagie · Zauber'],
 };
-const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?) WHERE slug=?');
+const portraits = new Set(['al-be-rich','buffy','bull','ermina','kapitaen-flint','kiezchronist','mondkind','seven-lifes','walpurga']);
+const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?) WHERE slug=?');
 for (const c of characters) {
   const oid = userByName[(c[2]||'').toLowerCase()] || null;
   const d = dossiers[c[0]] || [null,null];
-  bfChar.run(oid, d[0], d[1], c[0]);
+  const img = portraits.has(c[0]) ? ('/static/img/chars/'+c[0]+'.jpg') : null;
+  bfChar.run(oid, d[0], d[1], img, c[0]);
 }
 
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------

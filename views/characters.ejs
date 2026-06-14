@@ -6,7 +6,7 @@
   <div class="grid cols3">
   <% byPlayer[pl].forEach(c=>{ %>
     <a class="card" href="/characters/<%= c.slug %>">
-      <% if(c.image){ %><img class="thumb" src="/uploads/<%= c.image %>"><% } else { %><div class="thumb noimg"></div><% } %>
+      <% if(c.image){ var cs=c.image.indexOf('/static')===0?c.image:'/uploads/'+c.image; %><img class="thumb" src="<%= cs %>"><% } else { %><div class="thumb noimg"></div><% } %>
       <div class="body"><h3><%= c.name %></h3><div class="meta"><%= c.archetype||'—' %></div></div>
     </a>
   <% }); %>
