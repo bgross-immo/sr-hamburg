@@ -85,7 +85,9 @@ app.post('/account/password', (req, res) => {
 app.get('/', (req, res) => {
   const runs = db.prepare('SELECT * FROM runs ORDER BY sort').all();
   const chars = db.prepare("SELECT * FROM characters WHERE metatype != '—' ORDER BY sort").all();
-  res.render('home', { title: 'Knoten', runs, charCount: chars.length });
+  const groupKarmaStart = 200;
+  const groupKarma = groupKarmaStart + runs.reduce((a, r) => { const m = String(r.karma || '').match(/\d+/); return a + (m ? parseInt(m[0], 10) : 0); }, 0);
+  res.render('home', { title: 'Knoten', runs, charCount: chars.length, groupKarma, groupKarmaStart });
 });
 
 // ---------- CHARACTERS ----------

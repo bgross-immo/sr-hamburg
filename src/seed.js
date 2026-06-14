@@ -76,14 +76,14 @@ const characters = [
    'Brokenhexen (Hexenzirkel), WG-Sani, WG-Studi',32],
   // Stubs (Bögen folgen)
   ['multitool','Multitool','Patric','—','—',
-   '—','Bogen folgt.','—','Connection: ein Hacker-Kontakt (in Run 1 am Sperrwerk genutzt).','Hacker-Kontakt (Name folgt)',40],
+   '—','Bogen folgt.','—','Connection: ein Hacker-Kontakt (in „Das Auge des Sturms“ am Sperrwerk genutzt).','Hacker-Kontakt (Name folgt)',40],
   ['wardoc','WarDoc','Patric','Ork','Combat Medic / Strassendoc',
    'Mundan (vermutlich).','Orkischer Sanitaeter, der das Team im Feld zusammenflickt. Robust und ruppig. Bogen folgt.','—','Details/Bogen folgen.','—',46],
   ['sparks','Sparks','Max','Hobgoblin','Chaosmagier',
    'Erwacht (Chaosmagier).','War in der Clubnacht; kennt Multitool. Bogen folgt.','—','—','Multitool',41],
   ['ronin','Ronin','Max','Mensch (schwer cybered, Essenz ~2,2)','Street Samurai',
    'Mundan; stark verkybert.',
-   'Herrenloser Samurai (Kaori Sato). Schnell und toedlich im Nahkampf und mit Schusswaffen, Akrobatik und Infiltration. Lebt auf einem Hotelschiff. In Run 2 in Bisams Klinik dazugestossen.',
+   'Herrenloser Samurai (Kaori Sato). Schnell und toedlich im Nahkampf und mit Schusswaffen, Akrobatik und Infiltration. Lebt auf einem Hotelschiff. In „Kein Ort zum Heilen“ in Bisams Klinik dazugestossen.',
    'Klingenwaffen + Ares Crusader II u.a.; mehrere Initiative-Durchgaenge.',
    'Werte aus handschriftlichem Bogen — Details ggf. von Max bestaetigen.',
    'Mehrere: Schieber, Waffenhaendler, Rettungssanitaeter, Fixerin (Loyalitaet/Einfluss notiert)',42],
@@ -142,19 +142,24 @@ const portraitData = {
 let slSum = {};
 try { slSum = require('./sl_summaries.json'); } catch (e) { console.error('sl_summaries', e); }
 const knowsMap = { 'bull':'Mondkind, Multitool, Random, Sparks', 'walpurga':'WarDoc (Trauma), Buffy' };
-const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?), gallery=COALESCE(gallery,?), sl_summary=COALESCE(sl_summary,?), knows=COALESCE(knows,?) WHERE slug=?');
+const setForce = (col,val,slug)=>{ if(val!=null && val!=='') db.prepare(`UPDATE characters SET ${col}=? WHERE slug=?`).run(val,slug); };
+const bfCharImg = db.prepare("UPDATE characters SET owner_id=COALESCE(owner_id,?), image=COALESCE(NULLIF(image,''),?), gallery=COALESCE(NULLIF(gallery,''),?) WHERE slug=?");
 for (const c of characters) {
   const oid = userByName[(c[2]||'').toLowerCase()] || null;
   const d = dossiers[c[0]] || [null,null];
   const arr = portraitData[c[0]] || null;
   const img = arr ? arr[0] : null;
   const gal = arr ? JSON.stringify(arr) : null;
-  bfChar.run(oid, d[0], d[1], img, gal, slSum[c[0]]||null, knowsMap[c[0]]||null, c[0]);
+  bfCharImg.run(oid, img, gal, c[0]);
+  setForce('johnson_dossier', d[0], c[0]);
+  setForce('highlight_skills', d[1], c[0]);
+  setForce('sl_summary', slSum[c[0]]||null, c[0]);
+  setForce('knows', knowsMap[c[0]]||null, c[0]);
 }
 
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
 const connections = [
-  ['dr-bisam','Dr. Bisam','Straßendoc','Mandelzirkel / Ghule (Verbündete)','Steilshoop, an der Friedhofsmauer','Behandelt jeden ohne SIN-Fragen; Barzahlung; Zigaretten','Verbündeter',
+  ['dr-bisam','Dr. Bisam','Straßendoc','','Steilshoop, an der Friedhofsmauer','Behandelt jeden ohne SIN-Fragen; Barzahlung; Zigaretten','Verbündeter',
    'Versorgte das Wattsammler-Mädchen Juna nach „Das Auge des Sturms“ und gab der Gruppe in „Kein Ort zum Heilen“ den Auftrag, Medikament zu beschaffen. Klinik wurde von Profis angegriffen.','Bull, Seven Lifes',1],
   ['svenja','Käpt’n Svenja','Likedeeler-Kapitänin','Likedeeler (Verbündete)','Dock 4, Finkenwerder','Freiheit der Elbe; hält ihr Wort','Verbündete',
    'Warnte die Gruppe in „Das Auge des Sturms“ vor Vester, heuerte sie an und nahm die verschleierte Kiste in Verwahrung.','Bull',1],
@@ -187,8 +192,8 @@ const connections = [
   ['haifisch-vester','Jens „Haifisch“ Vester','Ork, Likedeeler-Anfuehrer','Likedeeler','St. Pauli / Hafen','Vorherrschaft unter den Piraten','Windig / unzuverlaessig','Bot in „Das Auge des Sturms“ einen falschen Bergungsjob an, der ein Massaker an Wattsammlern gewesen waere. Die Runner lehnten ab.','',0],
 ];
 const insConn = db.prepare(`INSERT OR IGNORE INTO connections (slug,name,role,faction,location,preferences,status,history,shared_by,campaign_relevant) VALUES (?,?,?,?,?,?,?,?,?,?)`);
-if (db.prepare('SELECT COUNT(*) c FROM connections').get().c === 0)
-  for (const c of connections) insConn.run(...c);
+const upConn = db.prepare(`UPDATE connections SET name=?,role=?,faction=?,location=?,preferences=?,status=?,history=?,shared_by=?,campaign_relevant=? WHERE slug=?`);
+for (const c of connections){ insConn.run(...c); upConn.run(c[1],c[2],c[3],c[4],c[5],c[6],c[7],c[8],c[9],c[0]); }
 
 // ---------- RUNS (Spielersicht, spoilerfrei) ----------
 const benId = (db.prepare("SELECT id FROM users WHERE username='benjamin'").get() || {}).id || 1;
@@ -207,7 +212,7 @@ const runs = [
     new_connections:'Käpt’n Svenja, Olaf „Schlickteufel“, Dr. Bisam, Juna',
     involved_connections:'Käpt’n Svenja',
     actors:'Likedeeler (Svenja & Vester) · Rote Korsaren · Wattsammler · ein Wasser-Avatar · Proteus (Drohne/Beobachter)',
-    summary:`Noch im Klabautermann, auf dem Hoehepunkt des Orkans, draengte sich der Ork Jens „Haifisch“ Vester mit seinen Likedeelern an die Bar und bot einen „Bergungsjob“ auf einem alten Flak-Turm im Watt — die Runner lehnten ab. Stattdessen nahmen sie sich der Schleusen-Sache an: ueber einen Hacker-Kontakt von Multitool griffen sie an einem Sperrwerk ins System ein und brachten die Flutschutztore gerade noch unter Kontrolle. Dann zu Kaeptn Svenja nach Finkenwerder, Dock 4. Sie war verletzt, ihre Leute — Wattsammler unter Olaf „Schlickteufel“ — sassen auf dem Flak-Turm Trutzburg weit draussen fest. Mit Svenjas gepanzertem Boot „Die Nadel“ stachen die Runner in den Orkan; eine Proteus-Drohne der Manta-Klasse beschattete sie, ein abgefangenes Protokoll zeigte: Sie wurden absichtlich durchgelassen, als Koeder. Im Turm fanden sie die kranken Wattsammler — und Juna, ein Maedchen mit schwach golden leuchtenden Adern, das eine singende Kiste umklammerte. Dann stuermten die Roten Korsaren auf Kampfdroge den Turm. Die Runner verteidigten die Zivilisten und toeteten den Anfuehrer, den Maat. Auf dem Hoehepunkt zog sich das Wasser zurueck — und ein gewaltiger Avatar aus Wasser, Wrackteilen und Phosphor erhob sich, zermalmte die Korsaren-Boote und verschluckte den Maat. Die Runner flohen, retteten die Wattsammler und uebergaben die magisch verschleierte Kiste an Svenja. Das katatonische Maedchen Juna nahm der Strassendoc Dr. Bisam mit in seine Klinik.` },
+    summary:`Noch im Klabautermann, auf dem Hoehepunkt des Orkans, draengte sich der Ork Jens „Haifisch“ Vester mit seinen Likedeelern an die Bar und bot einen „Bergungsjob“ auf einem alten Flak-Turm im Watt — die Runner lehnten ab. Stattdessen nahmen sie sich der Schleusen-Sache an: ueber einen Hacker-Kontakt von Multitool griffen sie an einem Sperrwerk ins System ein und brachten die Flutschutztore gerade noch unter Kontrolle. Dann zu Kaeptn Svenja nach Finkenwerder, Dock 4. Sie war verletzt, ihre Leute — Wattsammler unter Olaf „Schlickteufel“ — sassen auf dem Flak-Turm Trutzburg weit draussen fest. Mit Svenjas gepanzertem Boot „Die Nadel“ stachen die Runner in den Orkan. Eine Proteus-Drohne der Manta-Klasse beschattete sie — Multitool klinkte sich ein und zog ihr Log. Das war Gold wert: Die Runner waren als Koeder markiert und absichtlich durchgelassen worden, die Drohne meldete laufend an einen Proteus-Knoten zurueck. Zwischen den Statusdaten lagen Klartext-Fragmente — ein Verweis auf „Medusa“, dieselbe Spur wie auf Foss' Datenchip aus „Die undichte Stelle“, und ein einzelnes Kuerzel als Gegenstelle: „S.“. Wer oder was „S.“ war, blieb offen — aber das komplette Log wanderte gut verwahrt in Multitools Speicher (Hinweis fuer spaeter). Im Turm fanden sie die kranken Wattsammler — und Juna, ein Maedchen mit schwach golden leuchtenden Adern, das eine singende Kiste umklammerte. Dann stuermten die Roten Korsaren auf Kampfdroge den Turm. Die Runner verteidigten die Zivilisten und toeteten den Anfuehrer, den Maat. Auf dem Hoehepunkt zog sich das Wasser zurueck — und ein gewaltiger Avatar aus Wasser, Wrackteilen und Phosphor erhob sich, zermalmte die Korsaren-Boote und verschluckte den Maat. Die Runner flohen, retteten die Wattsammler und uebergaben die magisch verschleierte Kiste an Svenja. Das katatonische Maedchen Juna nahm der Strassendoc Dr. Bisam mit in seine Klinik.` },
   { slug:'run-2', number:'Run 2', title:'Kein Ort zum Heilen', date_played:'Der Morgen nach dem Sturm',
     participants:'Bull, Mondkind, Ronin, Multitool',
     location:'Steilshoop', time_from:'Morgen nach dem Sturm', time_to:'später Vormittag',
@@ -226,7 +231,8 @@ const runs = [
 ];
 const rcols = ['slug','number','title','date_played','participants','location','time_from','time_to','karma','nuyen','loot','new_connections','involved_connections','actors','summary'];
 const insRun = db.prepare(`INSERT OR IGNORE INTO runs (${rcols.join(',')},images,owner_id,sort) VALUES (${rcols.map(()=>'?').join(',')},'[]',?,?)`);
-const bfRun = db.prepare(`UPDATE runs SET location=COALESCE(location,?), time_from=COALESCE(time_from,?), time_to=COALESCE(time_to,?), karma=COALESCE(karma,?), nuyen=COALESCE(nuyen,?), loot=COALESCE(loot,?), new_connections=COALESCE(new_connections,?), involved_connections=COALESCE(involved_connections,?), actors=COALESCE(actors,?), owner_id=COALESCE(owner_id,?) WHERE slug=?`);
+const bfRun = db.prepare(`UPDATE runs SET location=COALESCE(NULLIF(location,''),?), time_from=COALESCE(NULLIF(time_from,''),?), time_to=COALESCE(NULLIF(time_to,''),?), karma=COALESCE(NULLIF(karma,''),?), nuyen=COALESCE(NULLIF(nuyen,''),?), loot=COALESCE(NULLIF(loot,''),?), new_connections=COALESCE(NULLIF(new_connections,''),?), involved_connections=COALESCE(NULLIF(involved_connections,''),?), actors=COALESCE(NULLIF(actors,''),?), owner_id=COALESCE(owner_id,?) WHERE slug=?`);
+const forceRun = db.prepare(`UPDATE runs SET title=?, number=?, date_played=?, participants=?, location=?, time_from=?, time_to=?, karma=?, nuyen=?, loot=?, new_connections=?, involved_connections=?, actors=?, summary=? WHERE slug=?`);
 const uid = (un) => (db.prepare('SELECT id FROM users WHERE username=?').get(un) || {}).id || benId;
 let _ri = 0;
 for (const r of runs) {
@@ -237,6 +243,8 @@ for (const r of runs) {
   if (r.participants) db.prepare("UPDATE runs SET participants=? WHERE slug=? AND (participants IS NULL OR participants='')").run(r.participants, r.slug);
   if (r.new_connections) db.prepare("UPDATE runs SET new_connections=? WHERE slug=? AND (new_connections IS NULL OR new_connections='')").run(r.new_connections, r.slug);
   bfRun.run(r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', oid, r.slug);
+  if ((r.owner || 'benjamin') === 'benjamin')
+    forceRun.run(r.title||'', r.number||'', r.date_played||'', r.participants||'', r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', r.summary||'', r.slug);
 }
 
 // Run-Bilder (nur setzen, wenn noch keine vorhanden)
@@ -244,6 +252,8 @@ let runImgs = {};
 try { runImgs = require('./run_images.json'); } catch (e) {}
 const bfRunImg = db.prepare("UPDATE runs SET images=? WHERE slug=? AND (images IS NULL OR images='' OR images='[]')");
 for (const [sl, arr] of Object.entries(runImgs)) bfRunImg.run(JSON.stringify(arr), sl);
+// Weihnachtsrun: Galerie aus dem Ordner ist massgeblich -> immer auf korrekte Reihenfolge setzen
+if (runImgs['weihnachtsrun']) db.prepare("UPDATE runs SET images=? WHERE slug='weihnachtsrun'").run(JSON.stringify(runImgs['weihnachtsrun']));
 
 // ---------- TIMELINE ----------
 const tl = [
@@ -289,7 +299,7 @@ const factions = [
   ['mandelzirkel','Mandelzirkel','Spirituelle Gemeinschaft','Verbuendet / neutral',
    'Ein Bund von Geisterkundigen und Voodoo-Praktizierenden, der fuer das spirituelle Gleichgewicht der Stadt einsteht.','Mama Mamba',40],
   ['wattsammler','Wattsammler','Kommune','Neutral / schutzbeduerftig',
-   'Eine raue Gemeinschaft, die im Watt von dem lebt, was die Gezeiten freigeben. In Run 1 vom Flak-Turm gerettet.','Olaf „Schlickteufel“, Juna',50],
+   'Eine raue Gemeinschaft, die im Watt von dem lebt, was die Gezeiten freigeben. In „Das Auge des Sturms“ vom Flak-Turm gerettet.','Olaf „Schlickteufel“, Juna',50],
   ['rote-korsaren','Rote Korsaren','Piraten','Feindlich',
    'Brutale, drogengepushte Freibeuter, die in fremden Revieren wildern. In „Das Auge des Sturms“ stuermten sie den Flak-Turm.','Der Maat (gefallen)',60],
   ['vory','Vory v Zakone','Syndikat','Neutral (pragmatisch)',
@@ -302,13 +312,13 @@ const factions = [
    'Eine quasi-religioese Wohltaetigkeitsbewegung, die nach dem Sturm Feldlazarette und Suppenkuechen betreibt. Pater Gregor gilt als Wohltaeter.','Pater Gregor',100],
 ];
 const insFac = db.prepare(`INSERT OR IGNORE INTO factions (slug,name,category,status,description,notable_members,sort) VALUES (?,?,?,?,?,?,?)`);
-if (db.prepare('SELECT COUNT(*) c FROM factions').get().c === 0)
-  for (const f of factions) insFac.run(...f);
+const upFac = db.prepare(`UPDATE factions SET name=?,category=?,status=?,description=?,notable_members=? WHERE slug=?`);
+for (const f of factions){ insFac.run(...f); upFac.run(f[1],f[2],f[3],f[4],f[5],f[0]); }
 
 
 // ---------- Connections: Einflussstufen (aus den Charakterboegen) ----------
 const infl = { 'dr-bisam':'4','svenja':'4','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5','van-den-berg':'unbekannt' };
-const bfInf = db.prepare('UPDATE connections SET influence=COALESCE(influence,?) WHERE slug=?');
+const bfInf = db.prepare('UPDATE connections SET influence=? WHERE slug=?');
 for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
 const bfConnImg = db.prepare('UPDATE connections SET image=COALESCE(image,?) WHERE slug=?');
 bfConnImg.run('/static/img/conns/van-den-berg.png','van-den-berg');
@@ -326,13 +336,14 @@ const locations = [
   ['elbphilharmonie','Elbphilharmonie','HafenCity','Wahrzeichen / VIP','Treffpunkt der feinen Leute','Glaeserner Elfenbeinturm ueber dem Hafen; Schauplatz des Auftrags in „Die undichte Stelle“.','—',90],
 ];
 const insLoc = db.prepare(`INSERT OR IGNORE INTO locations (slug,name,area,type,status,description,notable,sort) VALUES (?,?,?,?,?,?,?,?)`);
-if (db.prepare('SELECT COUNT(*) c FROM locations').get().c === 0)
-  for (const l of locations) insLoc.run(...l);
+const upLoc = db.prepare(`UPDATE locations SET name=?,area=?,type=?,status=?,description=?,notable=? WHERE slug=?`);
+for (const l of locations){ insLoc.run(...l); upLoc.run(l[1],l[2],l[3],l[4],l[5],l[6],l[0]); }
 const bfLocImg = db.prepare('UPDATE locations SET image=COALESCE(image,?) WHERE slug=?');
 bfLocImg.run('/static/img/locations/ms-hanse-teufel.jpg','ms-hanse-teufel');
 
 try { db.prepare('DELETE FROM locations WHERE slug=?').run('schwarzer-garten'); } catch (e) {}
 try { db.prepare('DELETE FROM factions WHERE slug=?').run('aeltermaenner'); } catch (e) {}
 try { db.prepare('DELETE FROM connections WHERE slug=?').run('senator-von-ahrensburg'); } catch (e) {}
+try { db.prepare("UPDATE connections SET faction='' WHERE slug='dr-bisam'").run(); } catch (e) {}
 console.log('Seed OK. Default-Passwort fuer alle Logins:', PW);
 console.log('Logins:', users.map(u=>u[0]).join(', '));
