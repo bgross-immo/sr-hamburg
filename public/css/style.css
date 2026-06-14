@@ -170,3 +170,7 @@ details.panel summary::-webkit-details-marker{display:none}
 
 /* Charakter-Galerie: vollstaendig zeigen */
 .char-gal{object-fit:contain !important;background:#000;height:150px;width:100%;border:1px solid var(--line2);border-radius:6px}
+
+/* Connection-/Location-Bilder: ganzes Bild zeigen (wie Chars) */
+.thumb.contain{object-fit:contain;background:#000}
+.avatar.contain{object-fit:contain;background:#000}

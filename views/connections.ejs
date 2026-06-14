@@ -4,7 +4,7 @@
 <div class="grid cols3">
 <% rows.forEach(x=>{ %>
   <a class="card" href="/connections/<%= x.slug %>">
-    <% if(x.image){ var cs=x.image.indexOf('/static')===0?x.image:'/uploads/'+x.image; %><img class="thumb" src="<%= cs %>"><% } %>
+    <% if(x.image){ var cs=x.image.indexOf('/static')===0?x.image:'/uploads/'+x.image; %><img class="thumb contain" src="<%= cs %>"><% } %>
     <div class="body">
       <h3><%= x.name %></h3>
       <div class="meta"><%= x.role %></div>

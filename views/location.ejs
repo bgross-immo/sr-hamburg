@@ -4,7 +4,7 @@
 <div class="sub"><%= l.area||'' %><% if(l.type){ %> · <%= l.type %><% } %></div>
 <div class="panel">
   <div class="row" style="align-items:flex-start;gap:20px">
-    <% if(l.image){ var ls=l.image.indexOf('/static')===0?l.image:'/uploads/'+l.image; %><img class="avatar" src="<%= ls %>"><% } %>
+    <% if(l.image){ var ls=l.image.indexOf('/static')===0?l.image:'/uploads/'+l.image; %><img class="avatar contain" src="<%= ls %>"><% } %>
     <dl class="kv" style="flex:1;min-width:260px">
       <dt>Stadtteil / Lage</dt><dd><%= l.area||'—' %></dd>
       <dt>Typ</dt><dd><%= l.type||'—' %></dd>

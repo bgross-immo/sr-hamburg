@@ -336,6 +336,7 @@ for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
 const bfConnImg = db.prepare("UPDATE connections SET image=COALESCE(NULLIF(image,''),?) WHERE slug=?");
 const connImgs = {
   'van-den-berg':'/static/img/conns/van-den-berg.jpg',
+  'gregor':'/static/img/conns/gregor.jpg',
   'dr-bisam':'/static/img/conns/dr-bisam.jpg',
   'juna':'/static/img/conns/juna.jpg',
   'groot':'/static/img/conns/groot.jpg',
