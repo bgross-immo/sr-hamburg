@@ -54,4 +54,12 @@ CREATE TABLE IF NOT EXISTS metaplot (
 db.exec(`CREATE TABLE IF NOT EXISTS maps (
   id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, title TEXT NOT NULL, image TEXT, note TEXT, sort INTEGER DEFAULT 100);`);
 
+// --- Migration: erweiterte Run-Felder (idempotent) ---
+try {
+  const rc = db.prepare("PRAGMA table_info(runs)").all().map(c => c.name);
+  const add = { owner_id:'INTEGER', location:'TEXT', time_from:'TEXT', time_to:'TEXT',
+    karma:'TEXT', nuyen:'TEXT', loot:'TEXT', new_connections:'TEXT', involved_connections:'TEXT', actors:'TEXT' };
+  for (const [c,t] of Object.entries(add)) if (!rc.includes(c)) db.exec(`ALTER TABLE runs ADD COLUMN ${c} ${t}`);
+} catch (e) { console.error('run migration', e); }
+
 module.exports = db;

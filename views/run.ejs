@@ -1,18 +1,25 @@
 <%- include('partials/header',{title}) %>
-<h1><span class="pre">//</span> <%= r.title %></h1>
-<div class="sub"><%= r.number %> · <%= r.date_played %><% if(r.participants){ %> · <%= r.participants %><% } %></div>
-<div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= r.summary %></div>
-  <% if(r.imageList.length){ %><div class="gallery"><% r.imageList.forEach(i=>{ %><a href="/uploads/<%= i %>" target="_blank"><img src="/uploads/<%= i %>"></a><% }); %></div><% } %>
+<div class="dossier-tag">AKTE // <%= r.number %></div>
+<h1 style="margin-top:4px"><%= r.title %></h1>
+<div class="sub"><%= r.date_played || '' %></div>
+<div class="panel kopf">
+  <dl class="kv">
+    <dt>Teilnehmer</dt><dd><%= r.participants||'—' %></dd>
+    <dt>Ort</dt><dd><%= r.location||'—' %></dd>
+    <dt>Zeitraum</dt><dd><%= [r.time_from,r.time_to].filter(Boolean).join('  –  ') || r.date_played || '—' %></dd>
+    <dt>Karma</dt><dd><%= r.karma||'—' %></dd>
+    <dt>Nuyen / Geld</dt><dd><%= r.nuyen||'—' %></dd>
+    <dt>Beute</dt><dd><%= r.loot||'—' %></dd>
+  </dl>
 </div>
-<% if(user.role==='sl'){ %>
-<div class="panel"><div class="meta mono" style="color:var(--red)">SL · Run bearbeiten / Bilder</div>
-  <form method="post" action="/sl/runs/<%= r.slug %>" enctype="multipart/form-data">
-    <div class="row"><div style="flex:1"><label>Titel</label><input name="title" value="<%= r.title %>"></div><div style="flex:1"><label>Datum</label><input name="date_played" value="<%= r.date_played||'' %>"></div></div>
-    <label>Teilnehmer</label><input name="participants" value="<%= r.participants||'' %>">
-    <label>Zusammenfassung</label><textarea name="summary" rows="6"><%= r.summary %></textarea>
-    <label>Bilder hinzufuegen</label><input type="file" name="images" accept="image/*" multiple>
-    <div style="margin-top:12px"><button class="btn">Speichern</button></div>
-  </form></div>
+<% function pills(str, cls){ if(!str) return ''; return str.split(/[·,;]/).map(x=>x.trim()).filter(Boolean).map(x=>'<span class="pill '+cls+'">'+x.replace(/</g,'&lt;')+'</span>').join(''); } %>
+<% if(r.actors){ %><h2>Beteiligte Akteure</h2><div class="pillrow"><%- pills(r.actors,'green') %></div><% } %>
+<% if((r.involved_connections) || (r.new_connections && r.new_connections!=='—')){ %>
+  <h2>Connections</h2><div class="pillrow"><%- pills(r.involved_connections,'') %><% if(r.new_connections && r.new_connections!=='—'){ %><%- pills(r.new_connections,'amber') %><% } %></div>
+  <div class="dim mono" style="font-size:11px;margin-top:2px">grau = beteiligt · gelb = neu kennengelernt</div>
 <% } %>
-<p style="margin-top:14px"><a href="/runs">&larr; Logbuch</a></p>
+<h2>Bericht</h2>
+<div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= r.summary %></div></div>
+<% if(r.imageList.length){ %><h2>Bilder</h2><div class="gallery"><% r.imageList.forEach(i=>{ %><a href="/uploads/<%= i %>" target="_blank"><img src="/uploads/<%= i %>"></a><% }); %></div><% } %>
+<div style="margin-top:22px;display:flex;gap:14px;align-items:center"><a href="/runs">&larr; Logbuch</a><% if(isOwner){ %><a class="btn ghost" href="/runs/<%= r.slug %>/edit">Bearbeiten</a><% } %></div>
 <%- include('partials/footer') %>

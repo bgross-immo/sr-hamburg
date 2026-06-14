@@ -132,21 +132,42 @@ const insConn = db.prepare(`INSERT OR IGNORE INTO connections (slug,name,role,fa
 if (db.prepare('SELECT COUNT(*) c FROM connections').get().c === 0)
   for (const c of connections) insConn.run(...c);
 
-// ---------- RUNS (spielerseitige Zusammenfassungen, spoilerfrei) ----------
+// ---------- RUNS (Spielersicht, spoilerfrei) ----------
+const benId = (db.prepare("SELECT id FROM users WHERE username='benjamin'").get() || {}).id || 1;
 const runs = [
-  ['run-0','Run 0','Die undichte Stelle','Vor dem Orkan „Njord“','Random, Multitool, Mondkind',
-   'Konsul Groot heuerte die Runner in der Elbphilharmonie an, einen abtrünnigen Proteus-Analysten — Dr. Arvid Foss — aus einem stillgelegten Pumpwerk in Wilhelmsburg zu holen, bevor der Konzern ihn zum Schweigen brachte. Während draußen die Flut stieg, verteidigten die Runner Foss gegen ein Proteus-Eingreifteam, töteten mehrere der Operativen und brachten ihn samt seinem Datenchip sicher zum „Klabautermann“. Auf dem Chip ein Codewort: „Medusa“. Beim Katerfrühstück im Diner stießen Sparks und Bull dazu — und die Runde war sich einig: Man kann die Menschen nicht einfach absaufen lassen.',
-   '[]',10],
-  ['run-1','Run 1','Das Auge des Sturms','Orkan „Njord“, Nacht','Random, Multitool, Mondkind, Bull, Sparks',
-   'Im „Klabautermann“ bot der Ork Jens „Haifisch“ Vester einen zwielichtigen Bergungsjob an — die Runner lehnten ab. Auf eigene Faust steuerten sie ein Sperrwerk an und brachten mit dem Hacker-Kontakt von Multitool die Flutschutztore gerade noch unter Kontrolle. Dann nahmen sie Käpt’n Svenjas Auftrag an und fuhren raus aufs Watt, zu einem alten Flak-Turm voller Wattsammler. Dort fanden sie ein seltsames, „singendes“ Objekt — und gerieten zwischen die Roten Korsaren und etwas weit Größeres: einen gewaltigen Avatar aus Wasser, der die Angreifer verschlang. Sie töteten den Korsaren-Anführer, retteten die Wattsammler und übergaben die magisch verschleierte Kiste an Svenja. Das Mädchen Juna kam zu Dr. Bisam.',
-   '[]',20],
-  ['run-2','Run 2','Kein Ort zum Heilen','Der Morgen nach dem Sturm','Bull, Mondkind, Ronin, Multitool',
-   'In Dr. Bisams Klinik in Steilshoop trafen die Runner auf Ronin und übernahmen einen Auftrag: dringend benötigtes Medikament für die kranke Juna aus einem von den Bakhtari kontrollierten Depot beschaffen. Beim Zugriff kreuzten sich ihre Wege mit der Vory. Als sie zurückkamen, war ein Team gut ausgerüsteter Profis dabei, Juna aus der Klinik zu entführen — jemand mit Geld will das Mädchen. Die Runner schlugen den Zugriff zurück, verhörten und „entsorgten“ über die Triaden einen Gefangenen und brachten Juna in Sicherheit.',
-   '[]',30],
+  { slug:'run-0', number:'Run 0', title:'Die undichte Stelle', date_played:'Vor dem Orkan „Njord“',
+    participants:'Random, Multitool, Mondkind',
+    location:'HafenCity · Wilhelmsburg · St. Pauli', time_from:'früher Abend', time_to:'Nacht (kurz vor der Flut)',
+    karma:'', nuyen:'2.500¥ pro Person (Ältermänner)', loot:'—',
+    new_connections:'Konsul Jürgen Groot, Dr. Arvid Foss', involved_connections:'Konsul Jürgen Groot',
+    actors:'Ältermänner · Proteus (Eingreifteam) · Tech-Squatter („Rust-Punx“)',
+    summary:`Konsul Groot heuerte die Runner in der Elbphilharmonie an, einen abtrünnigen Proteus-Analysten — Dr. Arvid Foss — aus einem stillgelegten Pumpwerk in Wilhelmsburg zu holen, bevor der Konzern ihn zum Schweigen brachte. Während draußen die Flut stieg, verteidigten die Runner Foss gegen ein Proteus-Eingreifteam, töteten mehrere der Operativen und brachten ihn samt seinem Datenchip sicher zum „Klabautermann“. Auf dem Chip ein Codewort: „Medusa“. Beim Katerfrühstück im Diner stießen Sparks und Bull dazu — und die Runde war sich einig: Man kann die Menschen nicht einfach absaufen lassen.` },
+  { slug:'run-1', number:'Run 1', title:'Das Auge des Sturms', date_played:'Orkan „Njord“, Nacht',
+    participants:'Random, Multitool, Mondkind, Bull, Sparks',
+    location:'St. Pauli · Finkenwerder · Nordsee/Watt · Flak-Turm', time_from:'Abend ~20:00', time_to:'tiefe Nacht ~23:45',
+    karma:'', nuyen:'3.000¥ pro Person (Likedeeler/Svenja)', loot:'—',
+    new_connections:'Käpt’n Svenja, Olaf „Schlickteufel“, Dr. Bisam, Juna',
+    involved_connections:'Käpt’n Svenja',
+    actors:'Likedeeler (Svenja & Vester) · Rote Korsaren · Wattsammler · ein Wasser-Avatar · Proteus (Drohne/Beobachter)',
+    summary:`Im „Klabautermann“ bot der Ork Jens „Haifisch“ Vester einen zwielichtigen Bergungsjob an — die Runner lehnten ab. Auf eigene Faust steuerten sie ein Sperrwerk an und brachten mit dem Hacker-Kontakt von Multitool die Flutschutztore gerade noch unter Kontrolle. Dann nahmen sie Käpt’n Svenjas Auftrag an und fuhren raus aufs Watt, zu einem alten Flak-Turm voller Wattsammler. Dort fanden sie ein seltsames, „singendes“ Objekt — und gerieten zwischen die Roten Korsaren und etwas weit Größeres: einen gewaltigen Avatar aus Wasser, der die Angreifer verschlang. Sie töteten den Korsaren-Anführer, retteten die Wattsammler und übergaben die magisch verschleierte Kiste an Svenja. Das Mädchen Juna kam zu Dr. Bisam.` },
+  { slug:'run-2', number:'Run 2', title:'Kein Ort zum Heilen', date_played:'Der Morgen nach dem Sturm',
+    participants:'Bull, Mondkind, Ronin, Multitool',
+    location:'Steilshoop', time_from:'Morgen nach dem Sturm', time_to:'später Vormittag',
+    karma:'10 (Teil 2)',
+    nuyen:'Loot-Verkauf 3.000¥ gesamt (je 1.000¥ an Bull, Mondkind, Ronin); Bisam-Lohn abgelehnt; −5.000¥ an die Triaden (Verhör/Entsorgung)',
+    loot:'Medikament (Auftragsziel) + verkaufter Depot-Loot',
+    new_connections:'—', involved_connections:'Dr. Bisam',
+    actors:'Bakhtari-Clan · Vory · unbekanntes Extraktionsteam',
+    summary:`In Dr. Bisams Klinik in Steilshoop trafen die Runner auf Ronin und übernahmen einen Auftrag: dringend benötigtes Medikament für die kranke Juna aus einem von den Bakhtari kontrollierten Depot beschaffen. Beim Zugriff kreuzten sich ihre Wege mit der Vory. Als sie zurückkamen, war ein Team gut ausgerüsteter Profis dabei, Juna aus der Klinik zu entführen — jemand mit Geld will das Mädchen. Die Runner schlugen den Zugriff zurück, verhörten und „entsorgten“ über die Triaden einen Gefangenen und brachten Juna in Sicherheit.` },
 ];
-const insRun = db.prepare(`INSERT OR IGNORE INTO runs (slug,number,title,date_played,participants,summary,images,sort) VALUES (?,?,?,?,?,?,?,?)`);
-if (db.prepare('SELECT COUNT(*) c FROM runs').get().c === 0)
-  for (const r of runs) insRun.run(...r);
+const rcols = ['slug','number','title','date_played','participants','location','time_from','time_to','karma','nuyen','loot','new_connections','involved_connections','actors','summary'];
+const insRun = db.prepare(`INSERT OR IGNORE INTO runs (${rcols.join(',')},images,owner_id,sort) VALUES (${rcols.map(()=>'?').join(',')},'[]',?,?)`);
+const bfRun = db.prepare(`UPDATE runs SET location=COALESCE(location,?), time_from=COALESCE(time_from,?), time_to=COALESCE(time_to,?), karma=COALESCE(karma,?), nuyen=COALESCE(nuyen,?), loot=COALESCE(loot,?), new_connections=COALESCE(new_connections,?), involved_connections=COALESCE(involved_connections,?), actors=COALESCE(actors,?), owner_id=COALESCE(owner_id,?) WHERE slug=?`);
+let _ri = 0;
+for (const r of runs) {
+  insRun.run(...rcols.map(c => r[c]), benId, 10 + (_ri++ * 10));
+  bfRun.run(r.location, r.time_from, r.time_to, r.karma, r.nuyen, r.loot, r.new_connections, r.involved_connections, r.actors, benId, r.slug);
+}
 
 // ---------- TIMELINE ----------
 const tl = [

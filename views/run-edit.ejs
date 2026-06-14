@@ -1,0 +1,22 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Bearbeiten</h1>
+<div class="sub"><%= r.number %> · <%= r.title %></div>
+<div class="shadowtalk"><span class="who">&gt; Achtung:</span> Bericht aus Spielersicht. Was die Spieler NICHT aufgedeckt haben (z. B. wahre Drahtzieher), darf hier nicht auftauchen.</div>
+<form method="post" action="/runs/<%= r.slug %>" enctype="multipart/form-data">
+  <div class="panel">
+    <div class="row"><div style="flex:1"><label>Nummer</label><input name="number" value="<%= r.number||'' %>"></div><div style="flex:2"><label>Titel</label><input name="title" value="<%= r.title||'' %>"></div></div>
+    <label>Teilnehmer</label><input name="participants" value="<%= r.participants||'' %>">
+    <label>Ort</label><input name="location" value="<%= r.location||'' %>">
+    <div class="row"><div style="flex:1"><label>Zeit von</label><input name="time_from" value="<%= r.time_from||'' %>"></div><div style="flex:1"><label>Zeit bis</label><input name="time_to" value="<%= r.time_to||'' %>"></div></div>
+    <div class="row"><div style="flex:1"><label>Karma</label><input name="karma" value="<%= r.karma||'' %>"></div><div style="flex:2"><label>Nuyen / Geld</label><input name="nuyen" value="<%= r.nuyen||'' %>"></div></div>
+    <label>Beute / Loot</label><input name="loot" value="<%= r.loot||'' %>">
+    <label>Beteiligte Akteure (Konzerne/Gruppen — mit · oder Komma trennen)</label><input name="actors" value="<%= r.actors||'' %>">
+    <label>Beteiligte Connections</label><input name="involved_connections" value="<%= r.involved_connections||'' %>">
+    <label>Neu kennengelernte Connections</label><input name="new_connections" value="<%= r.new_connections||'' %>">
+    <label>Bericht (Spielersicht)</label><textarea name="summary" rows="10"><%= r.summary||'' %></textarea>
+    <label>Bilder hinzufügen</label><input type="file" name="images" accept="image/*" multiple>
+    <% if(r.imageList.length){ %><div class="gallery" style="margin-top:10px"><% r.imageList.forEach(i=>{ %><img src="/uploads/<%= i %>"><% }); %></div><% } %>
+    <div style="margin-top:16px;display:flex;gap:14px;align-items:center"><button class="btn">Speichern</button><a href="/runs/<%= r.slug %>">Abbrechen</a></div>
+  </div>
+</form>
+<%- include('partials/footer') %>
