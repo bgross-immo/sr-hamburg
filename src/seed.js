@@ -56,19 +56,19 @@ const characters = [
    'MCT Fly-Spy Drohne, Cyberarm/-bein, Decker-Suite.',
    '20-J-Lockvertrag Z-IC; Arbeitsunfall; mit Vory-Hilfe geflohen → Schulden; Z-IC-Kopfgeld.',
    'Dr. Bisam (Straßendoc), Warentester Claas (Likedeeler), Phobos (Schieber Berlin), Björn Halter (Büchsenmacher)',22],
-  ['bull','Bull','Sigi','Troll/Minotaurus, 17','Nahkampf-Adept & Schamane',
+  ['bull','Bull','Sigi','Minotaurus, 17','Ki-Adept (Nahkaempfer)',
    'Erwacht, schamanisch (Materialization), Mentor Beasts.',
    'Junger Minotaur aus dem Alten Land, tier-/naturverbunden, Hund „Frodo“; tagsüber Türsteher.',
    'Gehörnter Nahkampf „Goring Horns“, traditioneller Bogen St.8.',
    'Sehr jung (17); Maria Juanes als möglicher Verräter-Kontakt.',
    'Dr. Bisam, Käpt’n Svenja, Laura Kowalski, Maria Juanes (Konzern-Headhunterin), Matthias Tiefenried, Frodo (Hund)',30],
-  ['ermina','Ermina','Sigi','Elf, 23','Face (Influence 6, ~9 Sprachen)',
+  ['ermina','Ermina','Sigi','Elf, 23','Chameleon (Face & Einbrecherin)',
    'Mundan.',
    'Aristokratische, vielsprachige High-Society-Verhandlerin & Infiltratorin; Oberschicht.',
    '—',
    'Familien-Aufhänger (Reanka); Kaltenstein-Patronage als Hebel.',
    'Elyria Reanka (vermutlich Familie), Kaltenstein (Großer Drache, Feldberg)',31],
-  ['walpurga','Walpurga','Sigi','Mensch, 28','Heil-/Support-Magierin (Hexe)',
+  ['walpurga','Walpurga','Sigi','Mensch, 28','Hexe (Heilerin & Tierbeherrscherin)',
    'Erwacht, Tradition Brockenhexen (Materialization), Initiation 1, Abwehrmagie.',
    'Rothaarige Hexe eines Zirkels; schlechter Ruf 1; Mittelschicht.',
    '—',
@@ -87,6 +87,10 @@ const characters = [
    'Klingenwaffen + Ares Crusader II u.a.; mehrere Initiative-Durchgaenge.',
    'Werte aus handschriftlichem Bogen — Details ggf. von Max bestaetigen.',
    'Mehrere: Schieber, Waffenhaendler, Rettungssanitaeter, Fixerin (Loyalitaet/Einfluss notiert)',42],
+  ['hi-no','Hi No','Sigi','—','—',
+   '—',
+   'Vierter Charakter von Sigi, nicht in seiner regulaeren Dreierauswahl. War beim Weihnachtsrun „Stille Nacht, toedliche Nacht“ dabei. Details folgen von Sigi.',
+   '—','—','—',43],
   ['patchdoc','PatchDoc','Max','Xenosapient (erwachte KI)','Magischer Strassendoc + Tech/Decker',
    'Erwacht (Magie 6).',
    'Magischer Strassendoc mit Tech-/Decker-Schlag: Medizin, Erste Hilfe, Computer/Hardware/Software, Hacking, eigenes Cyberdeck. Heiler/Support + Technik.',
@@ -137,14 +141,15 @@ const portraitData = {
 };
 let slSum = {};
 try { slSum = require('./sl_summaries.json'); } catch (e) { console.error('sl_summaries', e); }
-const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?), gallery=COALESCE(gallery,?), sl_summary=COALESCE(sl_summary,?) WHERE slug=?');
+const knowsMap = { 'bull':'Mondkind, Multitool, Random, Sparks', 'walpurga':'WarDoc (Trauma), Buffy' };
+const bfChar = db.prepare('UPDATE characters SET owner_id=COALESCE(owner_id,?), johnson_dossier=COALESCE(johnson_dossier,?), highlight_skills=COALESCE(highlight_skills,?), image=COALESCE(image,?), gallery=COALESCE(gallery,?), sl_summary=COALESCE(sl_summary,?), knows=COALESCE(knows,?) WHERE slug=?');
 for (const c of characters) {
   const oid = userByName[(c[2]||'').toLowerCase()] || null;
   const d = dossiers[c[0]] || [null,null];
   const arr = portraitData[c[0]] || null;
   const img = arr ? arr[0] : null;
   const gal = arr ? JSON.stringify(arr) : null;
-  bfChar.run(oid, d[0], d[1], img, gal, slSum[c[0]]||null, c[0]);
+  bfChar.run(oid, d[0], d[1], img, gal, slSum[c[0]]||null, knowsMap[c[0]]||null, c[0]);
 }
 
 // ---------- CONNECTIONS (Spielerwissen, keine Plot-Geheimnisse) ----------
@@ -212,7 +217,7 @@ const runs = [
     actors:'Bakhtari-Clan · Vory · unbekanntes Extraktionsteam',
     summary:`Der Morgen nach dem Sturm, Steilshoop. In Dr. Bisams Klinik trafen die Runner auf Ronin und auf Juna, die in der Nacht schwere Anfaelle gehabt hatte — ihr Nervensystem reagierte auf etwas, das nicht physisch war. Bisam brauchte dringend Neocortizin, ein seltenes Antikonvulsivum; sein Vorrat lag in einem von den Bakhtari kontrollierten ehemaligen Sanitaetsstuetzpunkt. Selbst hin konnte er nicht — also uebernahmen die Runner. Im Depot zwischen surrenden Kuehlkammern kreuzten sich ihre Wege mit der Vory, die dieselbe Idee hatte; man einigte sich pragmatisch, die Runner sicherten das Medikament. Doch als sie zurueckkamen, war ein Team gut ausgeruesteter Profis in Zivil dabei, Juna zu entfuehren — jemand mit Geld wollte das Maedchen. Die Runner schlugen den Zugriff zurueck, Bisam kam mit einem blauen Auge davon. Ueber die Triaden liessen sie einen Gefangenen verhoeren und entsorgen und brachten Juna in Sicherheit. Pater Gregor vom Weg der Reinheit, der gegenueber eine Suppenkueche betrieb, half nach dem Angriff aus und bot der Klinik seinen Schutz an.` },
   { slug:'retten-seebunker-kid', number:'', title:'Retten des reichen Kids aus dem Seebunker', date_played:'vor den HDL-Runs', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:5 },
-  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', summary:`Weihnachten in Hamburg. Auf einem Weihnachtsmarkt trat ein Johnson an die Runner heran. Im Umfeld: Werbung fuer „SKAD“ und einen „Ruprecht 3000“ — und der undurchsichtige Van den Berg. Ueber Pier, Hafenueberwachung und ein Gang-Lager fuehrte die Spur aufs Wasser, an Bord der „MS Hanseteufel“. Dort wurde es duester: ein Gang-Massaker, Ghule unter Deck, der „Kapitaen Klabauter“. Mitten in der Aktion stuermte HanSec das Schiff. Am Ende stand eine Uebergabe an einem abgelegenen Ort — und Schlagzeilen ueber die MS und die „WarLeague“. (Entwurf aus den Bildern — Benjamin, bitte als Owner Reihenfolge und Details praezisieren.)`, owner:'benjamin', sort:7 },
+  { slug:'weihnachtsrun', number:'', title:'Stille Nacht, toedliche Nacht', date_played:'Weihnachten', karma:'12', participants:'Random, Seven Lifes, Ronin, Hi No', actors:'Saeder-Krupp · Ghul-Piraten (Kaeptn Klabauter) · HanSec', summary:`Weihnachten in Hamburg, saurer Schneeregen ueber dem historischen Weihnachtsmarkt in der Speicherstadt. Dort sprach Herr van den Berg die Runner an — ein voellig fertiger Logistik-Manager von Saeder-Krupp. Sein Sohn hatte sich den „S-K Knecht Ruprecht 3000“ gewuenscht, eine 2,50 m grosse Luxus-Drohne im Weihnachtsmann-Look; die Lieferung war im Hafen abgefangen worden. Auftrag: die Drohne bergen, mit Bonus fuer das unbeschaedigte Spielzeug im Sack. Die Spur fuehrte ueber Pier und Hafenueberwachung aufs Wasser — zu einem halb gesunkenen Frachter im Muehlenberger Loch, der „MS Hanse-Teufel“. Das Schiff war in der Hand von Ghul-Piraten unter „Kaeptn Klabauter“, einem Ghul-Adepten. Sie hatten die Drohne laienhaft umprogrammiert: Auf dem vereisten Oberdeck patrouillierte der „Cyber-Santa“, hielt jeden fuer „unartig“ und zitierte ueber Lautsprecher die Suenden der Runner, waehrend aus den dunklen Frachtraeumen die Ghule angriffen. Mitten im Gefecht tauchte HanSec auf, vom Laerm angelockt — es folgte die Flucht ueber die Elbe und durch die Fleete. Offiziell hiess es danach in den Nachrichten, Spezialeinheiten haetten einen Terroranschlag im Hafen vereitelt und Verdaechtige neutralisiert. Spaeter tauchte die Drohne in den Medien wieder auf — bei der Urban-Brawl-Mannschaft von van den Bergs Sohn.`, owner:'benjamin', sort:7 },
   { slug:'vier-naegel', number:'', title:'4 Naegel stehlen', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:40 },
   { slug:'zenzus-retten', number:'', title:'Zenzus retten', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:50 },
   { slug:'klaerwerk-toxischer-geist', number:'', title:'Klaerwerk - Toxischer Geist', date_played:'parallel zu den HDL-Runs (Datum: Alex)', karma:'10', summary:'Details werden von der Spielleitung (Alex) ergaenzt.', owner:'alex', sort:60 },
@@ -228,6 +233,7 @@ for (const r of runs) {
   const so = (r.sort != null) ? r.sort : 10 + (_ri * 10);
   _ri++;
   insRun.run(...rcols.map(c => (r[c] == null ? '' : r[c])), oid, so);
+  if (r.participants) db.prepare("UPDATE runs SET participants=? WHERE slug=? AND (participants IS NULL OR participants='')").run(r.participants, r.slug);
   bfRun.run(r.location||'', r.time_from||'', r.time_to||'', r.karma||'', r.nuyen||'', r.loot||'', r.new_connections||'', r.involved_connections||'', r.actors||'', oid, r.slug);
 }
 

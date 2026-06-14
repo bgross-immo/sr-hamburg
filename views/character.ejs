@@ -68,6 +68,7 @@
     <label>Profession / Archetyp</label><input name="archetype" value="<%= c.archetype||'' %>">
     <label>Johnson-Dossier (was ein Johnson weiss — spielerseitig)</label><textarea name="johnson_dossier" rows="3"><%= c.johnson_dossier||'' %></textarea>
     <label>Highlight-Skills (mit · trennen)</label><input name="highlight_skills" value="<%= c.highlight_skills||'' %>">
+    <label>Kennt (andere Runner — mit Komma trennen)</label><input name="knows" value="<%= c.knows||'' %>">
     <label>SL-Zusammenfassung (nur SL + eigener Spieler sichtbar)</label><textarea name="sl_summary" rows="5"><%= c.sl_summary||'' %></textarea>
     <label>Hintergrundstory (allgemein — alle Mitspieler sehen das)</label><textarea name="background" rows="5"><%= c.background||'' %></textarea>
     <label>Hintergrund — nur SL + eigener Spieler</label><textarea name="background_sl" rows="4"><%= c.background_sl||'' %></textarea>
@@ -76,6 +77,12 @@
 </details>
 <% } %>
 
+<% if(knowsLinks && knowsLinks.length){ %>
+<h2>Bekannte Runner</h2>
+<div class="panel"><div class="pillrow">
+<% knowsLinks.forEach(function(m){ %><% if(m.slug){ %><a class="pill green" href="/characters/<%= m.slug %>" style="text-decoration:none"><%= m.name %></a><% }else{ %><span class="pill"><%= m.name %></span><% } %><% }); %>
+</div></div>
+<% } %>
 <h2>Connections</h2>
 <% if(conns.length){ %><div class="grid cols3">
 <% conns.forEach(x=>{ %><a class="card" href="/connections/<%= x.slug %>"><div class="body"><h3 style="font-size:14px"><%= x.name %></h3><div class="meta"><%= x.role %></div><% if(x.location){ %><p style="margin-top:4px"><%= x.location %></p><% } %></div></a><% }); %>

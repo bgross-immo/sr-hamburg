@@ -114,13 +114,13 @@ app.get('/characters/:slug', loadChar, (req, res) => {
   const runs = db.prepare("SELECT slug,number,title,date_played FROM runs WHERE participants LIKE '%'||?||'%' ORDER BY sort").all(c.name);
   const logs = canEdit ? db.prepare('SELECT * FROM char_logs WHERE char_slug=? ORDER BY created_at DESC').all(c.slug) : [];
   let galleryArr = []; try { galleryArr = JSON.parse(c.gallery || '[]'); } catch (e) {}
-  res.render('character', { title: c.name, c, canEdit, conns, runs, logs, galleryArr });
+  res.render('character', { title: c.name, c, canEdit, conns, runs, logs, galleryArr, knowsLinks: linkifyRunners(c.knows) });
 });
 app.post('/characters/:slug', loadChar, (req, res) => {
   if (!mayEditChar(req, res)) return res.status(403).render('error', { title: 'Kein Zugriff', msg: 'Nur SL oder der eigene Spieler.' });
   const b = req.body;
-  db.prepare('UPDATE characters SET name=?,metatype=?,archetype=?,johnson_dossier=?,highlight_skills=?,sl_summary=?,background=?,background_sl=? WHERE slug=?')
-    .run(b.name || req.char.name, b.metatype || '', b.archetype || '', b.johnson_dossier || '', b.highlight_skills || '', b.sl_summary || '', b.background || '', b.background_sl || '', req.char.slug);
+  db.prepare('UPDATE characters SET name=?,metatype=?,archetype=?,johnson_dossier=?,highlight_skills=?,sl_summary=?,background=?,background_sl=?,knows=? WHERE slug=?')
+    .run(b.name || req.char.name, b.metatype || '', b.archetype || '', b.johnson_dossier || '', b.highlight_skills || '', b.sl_summary || '', b.background || '', b.background_sl || '', b.knows || '', req.char.slug);
   res.redirect('/characters/' + req.char.slug);
 });
 app.post('/characters/:slug/sheet', loadChar, uploadDoc.single('sheet'), (req, res) => {
@@ -317,6 +317,12 @@ app.post('/sl/maps', requireSL, upload.single('image'), (req, res) => {
   res.redirect('/maps');
 });
 
+function linkifyRunners(str) {
+  if (!str) return [];
+  const norm = x => x.toLowerCase().replace(/[\u2018\u2019\u201A\u201C\u201D\u201E'`]/g, '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g, ' ').trim();
+  const map = {}; for (const c of db.prepare('SELECT slug,name FROM characters').all()) map[norm(c.name)] = c.slug;
+  return str.split(/[,·;]/).map(x => x.trim()).filter(Boolean).map(name => ({ name, slug: map[norm(name.replace(/\(.*?\)/g, '').trim())] || null }));
+}
 function linkifyNames(str) {
   if (!str) return [];
   const norm = x => x.toLowerCase().replace(/[\u2018\u2019\u201A\u201C\u201D\u201E'`]/g, '').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g, ' ').trim();
