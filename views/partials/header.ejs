@@ -5,15 +5,31 @@
 <link rel="stylesheet" href="/static/css/style.css">
 </head><body>
 <div class="scan"></div>
-<% if (user) { %>
-<header class="top"><div class="wrap bar">
+<% if (user) {
+   function ic(n){ const I={
+     home:'<path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/>',
+     run:'<path d="M5 4a1 1 0 0 1 1-1h12v18H6a1 1 0 0 1-1-1z"/><path d="M9 3v18M12 8h4M12 12h4"/>',
+     clock:'<circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/>',
+     net:'<circle cx="6" cy="6" r="2"/><circle cx="18" cy="9" r="2"/><circle cx="9" cy="18" r="2"/><path d="M8 7l8 1.5M8 16l8-6"/>',
+     map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+     note:'<path d="M6 4h12v16l-4-3H6z"/><path d="M9 9h6M9 13h4"/>',
+     user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+     lock:'<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>'
+   }; return I[n]||''; }
+%>
+<header class="top"><div class="topbar">
   <div class="brand"><span class="dot"></span><b>SCHATTEN</b>NETZ<span class="dim"> // HAMBURG-KNOTEN</span></div>
-  <nav class="main">
-    <% const nav=[['/','Knoten'],['/characters','Runner'],['/runs','Logbuch'],['/timeline','Zeitleiste'],['/connections','Kontakte'],['/notes','Notizen']];
-       nav.forEach(n=>{ %><a href="<%= n[0] %>" class="<%= (n[0]==='/'? path==='/' : path.indexOf(n[0])===0)?'active':'' %>"><%= n[1] %></a><% }); %>
-    <% if (user.role==='sl'){ %><a href="/sl" class="<%= path.indexOf('/sl')===0?'active':'' %>" style="color:var(--red)">SL // HDL</a><% } %>
-  </nav>
   <div class="userbox"><span class="tag">@<%= user.username %></span><% if(user.role==='sl'){ %><span class="badge-sl">SL</span><% } %><a href="/account">Konto</a><a href="/logout">Logout</a></div>
 </div></header>
+<div class="layout">
+  <aside class="sidebar"><nav>
+    <% const items=[['/','Knoten','user' && 'home'],['/characters','Runner','user'],['/runs','Logbuch','run'],['/timeline','Zeitleiste','clock'],['/connections','Kontakte','net'],['/maps','Karten','map'],['/notes','Notizen','note']];
+       items.forEach(it=>{ const act=(it[0]==='/'? path==='/' : path.indexOf(it[0])===0); %>
+      <a href="<%= it[0] %>" class="<%= act?'active':'' %>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><%- ic(it[2]) %></svg><%= it[1] %></a>
+    <% }); %>
+    <% if(user.role==='sl'){ const act=path.indexOf('/sl')===0; %>
+      <a href="/sl" class="sl <%= act?'active':'' %>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><%- ic('lock') %></svg>SL // HDL</a>
+    <% } %>
+  </nav></aside>
+  <main class="content"><div class="wrap">
 <% } %>
-<main><div class="wrap">

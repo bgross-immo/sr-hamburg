@@ -122,3 +122,33 @@ label{display:block;font-family:var(--mono);font-size:11px;text-transform:upperc
 footer.foot{border-top:1px solid var(--line2);color:var(--dim);font-family:var(--mono);font-size:11px;padding:18px 0;text-align:center;letter-spacing:.5px}
 hr.sep{border:none;border-top:1px solid var(--line2);margin:18px 0}
 .scan{pointer-events:none;position:fixed;inset:0;z-index:9999;background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.08) 3px);mix-blend-mode:multiply;opacity:.45}
+
+/* ===== Sidebar layout (v2) ===== */
+.topbar{display:flex;align-items:center;justify-content:space-between;height:56px;max-width:1340px;margin:0 auto;padding:0 18px}
+.layout{display:flex;max-width:1340px;margin:0 auto}
+.sidebar{width:212px;flex:0 0 212px;border-right:1px solid var(--line2);padding:18px 12px;position:sticky;top:56px;height:calc(100vh - 56px);overflow:auto}
+.sidebar nav{display:flex;flex-direction:column;gap:3px}
+.sidebar a{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);padding:10px 12px;border-radius:6px;border-left:3px solid transparent}
+.sidebar a svg{width:18px;height:18px;flex:0 0 18px}
+.sidebar a:hover{color:var(--ink);background:var(--panel)}
+.sidebar a.active{color:var(--green);background:rgba(54,224,123,.09);border-left-color:var(--green)}
+.sidebar a.sl{color:#c79aa0;margin-top:8px;border-top:1px solid var(--line);padding-top:14px}
+.sidebar a.sl.active{color:var(--red);border-left-color:var(--red);background:rgba(255,85,102,.08)}
+.content{flex:1;min-width:0;padding:24px 0 90px}
+.content .wrap{max-width:1000px;margin:0;padding:0 26px}
+@media(max-width:860px){
+  .layout{flex-direction:column}
+  .sidebar{width:auto;flex:none;position:static;height:auto;border-right:none;border-bottom:1px solid var(--line2);overflow-x:auto;padding:8px}
+  .sidebar nav{flex-direction:row;flex-wrap:nowrap;gap:2px}
+  .sidebar a{white-space:nowrap;border-left:none;border-bottom:3px solid transparent;border-radius:5px 5px 0 0;padding:9px 12px}
+  .sidebar a.active{border-left:none;border-bottom-color:var(--green)}
+  .sidebar a.sl{margin-top:0;border-top:none;padding-top:9px}
+}
+
+/* hero with own art */
+.hero{background:
+  linear-gradient(180deg,rgba(6,16,11,.42),rgba(6,16,11,.86)),
+  url('/static/img/banner/hero.jpg') center 30%/cover;
+  min-height:210px;display:flex;align-items:flex-end}
+.hero .inner{padding:22px 24px}
+.hero::after{display:none}

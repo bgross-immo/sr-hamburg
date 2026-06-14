@@ -192,6 +192,22 @@ app.post('/sl/connection/:slug', requireSL, (req, res) => {
   res.redirect('/connections/' + req.params.slug);
 });
 
+
+// ---------- MAPS ----------
+app.get('/maps', (req, res) => {
+  const rows = db.prepare('SELECT * FROM maps ORDER BY sort').all();
+  res.render('maps', { title: 'Karten', rows });
+});
+app.post('/sl/maps', requireSL, upload.single('image'), (req, res) => {
+  if (req.file) {
+    const slug = (req.body.title || ('karte-' + Date.now())).toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const maxSort = (db.prepare('SELECT MAX(sort) m FROM maps').get().m || 0) + 10;
+    db.prepare('INSERT INTO maps (slug,title,image,note,sort) VALUES (?,?,?,?,?)')
+      .run(slug, req.body.title || 'Karte', req.file.filename, req.body.note || '', maxSort);
+  }
+  res.redirect('/maps');
+});
+
 app.use((req, res) => res.status(404).render('error', { title: '404', msg: 'Seite nicht gefunden.' }));
 
 const PORT = process.env.PORT || 3000;

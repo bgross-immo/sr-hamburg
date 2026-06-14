@@ -162,5 +162,15 @@ const insMeta = db.prepare(`INSERT OR IGNORE INTO metaplot (slug,code,owner,titl
 if (db.prepare('SELECT COUNT(*) c FROM metaplot').get().c === 0)
   for (const m of meta) insMeta.run(...m);
 
+
+// ---------- MAPS ----------
+const maps = [
+  ['hamburg','Hamburg — Übersicht','/static/img/maps/hamburg.jpg','Bezirke und besondere Orte der Stadt (Quellenband-Karte).',10],
+  ['wild-ost','Wild Ost','/static/img/maps/wildost.jpg','Detailkarte des Sektors Wild Ost.',20],
+];
+const insMap = db.prepare(`INSERT OR IGNORE INTO maps (slug,title,image,note,sort) VALUES (?,?,?,?,?)`);
+if (db.prepare('SELECT COUNT(*) c FROM maps').get().c === 0)
+  for (const m of maps) insMap.run(...m);
+
 console.log('Seed OK. Default-Passwort fuer alle Logins:', PW);
 console.log('Logins:', users.map(u=>u[0]).join(', '));

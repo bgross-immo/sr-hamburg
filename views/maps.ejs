@@ -1,0 +1,21 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Karten</h1>
+<div class="sub">Hamburg &amp; Sektoren</div>
+<div class="grid cols2">
+<% rows.forEach(m=>{ var src = m.image && m.image.indexOf('/static')===0 ? m.image : ('/uploads/'+m.image); %>
+  <div class="card">
+    <a href="<%= src %>" target="_blank"><img class="thumb" style="height:230px" src="<%= src %>"></a>
+    <div class="body"><h3><%= m.title %></h3><% if(m.note){ %><p><%= m.note %></p><% } %><div class="meta" style="margin-top:6px"><a href="<%= src %>" target="_blank">Vollbild öffnen →</a></div></div>
+  </div>
+<% }); %>
+</div>
+<% if(user.role==='sl'){ %>
+<div class="panel" style="margin-top:18px"><div class="meta mono" style="color:var(--red)">SL · Karte hinzufügen</div>
+  <form method="post" action="/sl/maps" enctype="multipart/form-data">
+    <div class="row"><div style="flex:1"><label>Titel</label><input name="title"></div></div>
+    <label>Notiz</label><input name="note">
+    <label>Bilddatei</label><input type="file" name="image" accept="image/*">
+    <div style="margin-top:12px"><button class="btn">Hochladen</button></div>
+  </form></div>
+<% } %>
+<%- include('partials/footer') %>

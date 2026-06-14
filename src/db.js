@@ -51,4 +51,7 @@ CREATE TABLE IF NOT EXISTS metaplot (
   id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, code TEXT NOT NULL, owner TEXT NOT NULL, title TEXT, body TEXT, updated_at TEXT);
 `);
 
+db.exec(`CREATE TABLE IF NOT EXISTS maps (
+  id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, title TEXT NOT NULL, image TEXT, note TEXT, sort INTEGER DEFAULT 100);`);
+
 module.exports = db;
