@@ -201,6 +201,7 @@ const connections = [
   ['gregor','Pater Gregor','Priester / Weg der Reinheit','Weg der Reinheit','Steilshoop / Suppenkueche','wirkt aufrichtig hilfsbereit','Bekannt','Tauchte in „Kein Ort zum Heilen“ in Bisams Klinik auf, brachte Vorraete und half nach dem Angriff.','',0],
   ['groot','Konsul Juergen Groot','Konsul / Auftraggeber','','Elbphilharmonie / Speicherstadt','hanseatische Diskretion, zahlt gut','Auftraggeber','Heuerte die Runner in „Die undichte Stelle“ an, Dr. Foss zu extrahieren. Verachtet Proteus.','',0],
   ['juna','Juna','Wattsammler-Maedchen / Medium','Wattsammler','zuletzt bei Dr. Bisam','—','Schutzbefohlene','Junges Maedchen mit goldglimmenden Adern und einer Verbindung zu der singenden Kiste. In „Das Auge des Sturms“ gerettet, danach in Bisams Obhut.','',0],
+  ['olaf-schlickteufel','Olaf „Schlickteufel“','Wattsammler-Anfuehrer','Wattsammler','Nordsee / Watt (Flak-Turm „Trutzburg“)','kennt jede Priel und Sandbank','Verbuendeter','Fuehrt die Wattsammler. In „Das Auge des Sturms“ mit seinen Leuten auf dem Flak-Turm eingeschlossen und von den Runnern gerettet.','',0],
   ['haifisch-vester','Jens „Haifisch“ Vester','Ork, Likedeeler-Anfuehrer','Likedeeler','St. Pauli / Hafen','Vorherrschaft unter den Piraten','Windig / unzuverlaessig','Bot in „Das Auge des Sturms“ einen falschen Bergungsjob an, der ein Massaker an Wattsammlern gewesen waere. Die Runner lehnten ab.','',0],
 ];
 const insConn = db.prepare(`INSERT OR IGNORE INTO connections (slug,name,role,faction,location,preferences,status,history,shared_by,campaign_relevant) VALUES (?,?,?,?,?,?,?,?,?,?)`);
@@ -332,8 +333,17 @@ for (const f of factions){ insFac.run(...f); upFac.run(f[1],f[2],f[3],f[4],f[5],
 const infl = { 'dr-bisam':'4','svenja':'4','kaltenstein':'12','seedrachin':'9','mama-mamba':'5','warentester-klaas':'5','myriam-teleam':'10','undine-glaser':'3','schelle-neumeister':'3','laura-kowalski':'4','pozi':'4','maria-juanes':'5','van-den-berg':'unbekannt' };
 const bfInf = db.prepare('UPDATE connections SET influence=? WHERE slug=?');
 for (const [sl, v] of Object.entries(infl)) bfInf.run(v, sl);
-const bfConnImg = db.prepare('UPDATE connections SET image=COALESCE(image,?) WHERE slug=?');
-bfConnImg.run('/static/img/conns/van-den-berg.png','van-den-berg');
+const bfConnImg = db.prepare("UPDATE connections SET image=COALESCE(NULLIF(image,''),?) WHERE slug=?");
+const connImgs = {
+  'van-den-berg':'/static/img/conns/van-den-berg.jpg',
+  'dr-bisam':'/static/img/conns/dr-bisam.jpg',
+  'juna':'/static/img/conns/juna.jpg',
+  'groot':'/static/img/conns/groot.jpg',
+  'haifisch-vester':'/static/img/conns/haifisch-vester.jpg',
+  'svenja':'/static/img/conns/svenja.jpg',
+  'olaf-schlickteufel':'/static/img/conns/olaf-schlickteufel.jpg',
+};
+for (const [sl, im] of Object.entries(connImgs)) bfConnImg.run(im, sl);
 
 // ---------- LOCATIONS (Spielerwissen, spoilerfrei) ----------
 const locations = [
