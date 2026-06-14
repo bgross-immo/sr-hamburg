@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const db = require('./db');
 
-const PW = process.env.SEED_DEFAULT_PASSWORD || 'hamburg';
+const PW = 'hamburg'; // Temp-Passwort fest verdrahtet (unabhaengig von Coolify-Env)
 const hash = bcrypt.hashSync(PW, 10);
 const now = () => new Date().toISOString();
 
@@ -17,6 +17,18 @@ const users = [
 const insUser = db.prepare(`INSERT OR IGNORE INTO users (username, display_name, role, password_hash, must_change) VALUES (?,?,?,?,1)`);
 const resetUser = db.prepare(`UPDATE users SET password_hash=?, role=? WHERE username=? AND must_change=1`);
 for (const [u, d, r] of users) { insUser.run(u, d, r, hash); resetUser.run(hash, r, u); }
+// Einmaliger, selbst-loeschender Passwort-Reset (laeuft genau 1x pro DB, danach nie wieder)
+try { db.exec('CREATE TABLE IF NOT EXISTS _meta (k TEXT PRIMARY KEY)'); } catch (e) {}
+function onceReset(key, username) {
+  try {
+    if (!db.prepare('SELECT 1 FROM _meta WHERE k=?').get(key)) {
+      db.prepare('UPDATE users SET password_hash=?, must_change=1 WHERE username=?').run(hash, username);
+      db.prepare('INSERT OR IGNORE INTO _meta (k) VALUES (?)').run(key);
+      console.log('Passwort-Reset angewendet fuer:', username, '(' + key + ')');
+    }
+  } catch (e) { console.error('onceReset error', e); }
+}
+onceReset('reset-alex-2026-06-14', 'alex');
 
 // ---------- CHARACTERS ----------
 const characters = [
