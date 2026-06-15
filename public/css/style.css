@@ -174,3 +174,21 @@ details.panel summary::-webkit-details-marker{display:none}
 /* Connection-/Location-Bilder: ganzes Bild zeigen (wie Chars) */
 .thumb.contain{object-fit:contain;background:#000}
 .avatar.contain{object-fit:contain;background:#000}
+
+/* ----- Filter/Sort/Ansicht-Umschalter ----- */
+.lvbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 16px}
+.lvbar .lv-search{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--line2);color:#fff;padding:9px 12px;border-radius:6px;font-family:var(--mono);font-size:13px}
+.lvbar select.lv-sort{background:var(--bg2);border:1px solid var(--line2);color:#fff;padding:9px 10px;border-radius:6px;font-family:var(--mono);font-size:13px}
+.lvtoggle{display:inline-flex;border:1px solid var(--green2);border-radius:6px;overflow:hidden}
+.lvtoggle button{background:transparent;color:var(--green);border:0;padding:9px 13px;cursor:pointer;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.lvtoggle button.active{background:var(--green);color:#04130a;font-weight:700}
+.lv-count{font-family:var(--mono);font-size:11px;color:var(--dim)}
+/* Listenansicht */
+.grid.listview{display:block}
+.grid.listview .card{display:flex;align-items:center;gap:14px;margin-bottom:8px}
+.grid.listview .thumb,.grid.listview .avatar{width:60px;height:60px;flex:0 0 auto;border:0;border-bottom:0;border-radius:6px}
+.grid.listview .card .body{padding:10px 6px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;flex:1}
+.grid.listview .card h3{margin:0;font-size:14px;min-width:150px}
+.grid.listview .card .meta{margin:0}
+.grid.listview .card p{margin:0;flex:1;min-width:120px;max-width:460px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid.listview .card>div[style]{margin-top:0 !important}

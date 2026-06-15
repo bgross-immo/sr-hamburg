@@ -1,9 +1,25 @@
 <%- include('partials/header',{title}) %>
 <h1><span class="pre">//</span> Kontakte</h1>
 <div class="sub">Bespielte NSCs · Ort · Status · Historie</div>
-<div class="grid cols3">
+<div class="lvbar" data-listview="connections">
+  <input class="lv-search" type="search" placeholder="Filtern (Name, Rolle, Ort, Fraktion)…">
+  <select class="lv-sort">
+    <option value="">Sortierung: Standard</option>
+    <option value="name">Name A–Z</option>
+    <option value="name:desc">Name Z–A</option>
+    <option value="influence:num:desc">Einfluss ↓</option>
+    <option value="influence:num">Einfluss ↑</option>
+    <option value="faction">Fraktion</option>
+    <option value="status">Status</option>
+  </select>
+  <span class="lvtoggle"><button data-view="grid">Kacheln</button><button data-view="list">Liste</button></span>
+  <span class="lv-count"></span>
+</div>
+<div class="grid cols3" data-listgrid>
 <% rows.forEach(x=>{ %>
-  <a class="card" href="/connections/<%= x.slug %>">
+  <a class="card" href="/connections/<%= x.slug %>"
+     data-name="<%= x.name %>" data-influence="<%= x.influence||'' %>" data-faction="<%= x.faction||'' %>" data-status="<%= x.status||'' %>"
+     data-search="<%= [x.name,x.role,x.location,x.faction,x.status].filter(Boolean).join(' ') %>">
     <% if(x.image){ var cs=x.image.indexOf('/static')===0?x.image:'/uploads/'+x.image; %><img class="thumb contain" src="<%= cs %>"><% } %>
     <div class="body">
       <h3><%= x.name %></h3>
@@ -11,10 +27,10 @@
       <p><%= x.location %></p>
       <div style="margin-top:8px">
         <% if(x.influence){ %><span class="pill amber">Einfluss <%= x.influence %></span><% } %><% if(x.faction){ %><span class="pill green"><%= x.faction %></span><% } %>
-        
       </div>
     </div>
   </a>
 <% }); %>
 </div>
+<script src="/static/js/listview.js"></script>
 <%- include('partials/footer') %>

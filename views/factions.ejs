@@ -1,10 +1,24 @@
 <%- include('partials/header',{title}) %>
 <h1><span class="pre">//</span> Fraktionen</h1>
 <div class="sub">Bespielte Mächte &amp; Gruppierungen Hamburgs</div>
-<div class="grid cols3">
+<div class="lvbar" data-listview="factions">
+  <input class="lv-search" type="search" placeholder="Filtern (Name, Kategorie, Status)…">
+  <select class="lv-sort">
+    <option value="">Sortierung: Standard</option>
+    <option value="name">Name A–Z</option>
+    <option value="name:desc">Name Z–A</option>
+    <option value="category">Kategorie</option>
+    <option value="status">Status</option>
+  </select>
+  <span class="lvtoggle"><button data-view="grid">Kacheln</button><button data-view="list">Liste</button></span>
+  <span class="lv-count"></span>
+</div>
+<div class="grid cols3" data-listgrid>
 <% rows.forEach(f=>{ %>
-  <a class="card" href="/factions/<%= f.slug %>">
-    <% if(f.image){ var fs=f.image.indexOf('/static')===0?f.image:'/uploads/'+f.image; %><img class="thumb" src="<%= fs %>"><% } %>
+  <a class="card" href="/factions/<%= f.slug %>"
+     data-name="<%= f.name %>" data-category="<%= f.category||'' %>" data-status="<%= f.status||'' %>"
+     data-search="<%= [f.name,f.category,f.status,f.description].filter(Boolean).join(' ') %>">
+    <% if(f.image){ var fs=f.image.indexOf('/static')===0?f.image:'/uploads/'+f.image; %><img class="thumb contain" src="<%= fs %>"><% } %>
     <div class="body"><h3><%= f.name %></h3><div class="meta"><%= f.category||'' %></div>
       <% if(f.status){ %><div style="margin-top:6px"><span class="pill green"><%= f.status %></span></div><% } %>
       <% if(f.description){ %><p><%= f.description.slice(0,110) %>…</p><% } %></div>
@@ -16,4 +30,5 @@
   <form method="post" action="/sl/factions" class="row" style="margin-top:8px"><div style="flex:1"><input name="name" placeholder="Name der Fraktion"></div><button class="btn">Anlegen</button></form>
 </div>
 <% } %>
+<script src="/static/js/listview.js"></script>
 <%- include('partials/footer') %>
