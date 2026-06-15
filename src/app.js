@@ -231,6 +231,44 @@ app.post('/notes', (req, res) => {
     .run(res.locals.user.id, req.body.title || 'Ohne Titel', req.body.body || '', req.body.shared ? 1 : 0, new Date().toISOString());
   res.redirect('/notes');
 });
+
+// ---------- TICKETS (temporaer: Bugs & Wuensche der Nutzer) ----------
+app.get('/tickets', (req, res) => {
+  const tickets = db.prepare(`SELECT t.*, u.display_name authorName, u.username FROM tickets t LEFT JOIN users u ON u.id=t.user_id ORDER BY t.created_at DESC`).all();
+  res.render('tickets', { title: 'Tickets', tickets });
+});
+app.post('/tickets', (req, res) => {
+  const type = (req.body.type === 'wunsch') ? 'wunsch' : 'bug';
+  const title = (req.body.title || '').trim() || 'Ohne Titel';
+  db.prepare('INSERT INTO tickets (type,title,body,user_id,author,created_at) VALUES (?,?,?,?,?,?)')
+    .run(type, title, req.body.body || '', res.locals.user.id, res.locals.user.display_name || res.locals.user.username, new Date().toISOString());
+  res.redirect('/tickets');
+});
+app.post('/tickets/:id/delete', (req, res) => {
+  const t = db.prepare('SELECT * FROM tickets WHERE id=?').get(req.params.id);
+  if (t && (res.locals.user.role === 'sl' || t.user_id === res.locals.user.id))
+    db.prepare('DELETE FROM tickets WHERE id=?').run(t.id);
+  res.redirect('/tickets');
+});
+app.get('/tickets/export.md', requireSL, (req, res) => {
+  const e = s => (s == null ? '' : String(s));
+  const rows = db.prepare(`SELECT t.*, u.display_name authorName FROM tickets t LEFT JOIN users u ON u.id=t.user_id ORDER BY t.type, t.created_at`).all();
+  let o = '# Schattennetz Hamburg — Tickets (Bugs & Wuensche)\n\nStand: ' + new Date().toISOString().slice(0,16).replace('T',' ') + '  ·  ' + rows.length + ' Tickets\n\n';
+  for (const grp of ['bug','wunsch']) {
+    const g = rows.filter(t => (t.type||'bug') === grp);
+    if (!g.length) continue;
+    o += (grp === 'bug' ? '## Bugs\n\n' : '## Wuensche\n\n');
+    for (const t of g) o += `- **${e(t.title)}** — ${e(t.authorName || t.author)} (${e((t.created_at||'').slice(0,10))})\n${t.body ? '  ' + e(t.body).replace(/\n/g,'\n  ') + '\n' : ''}`;
+    o += '\n';
+  }
+  res.type('text/markdown; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="tickets.md"');
+  res.send(o);
+});
+app.post('/tickets/clear', requireSL, (req, res) => {
+  db.prepare('DELETE FROM tickets').run();
+  res.redirect('/tickets');
+});
 app.post('/notes/:id', (req, res) => {
   const n = db.prepare('SELECT * FROM notes WHERE id=?').get(req.params.id);
   if (!n || n.user_id !== res.locals.user.id) return res.status(403).end();

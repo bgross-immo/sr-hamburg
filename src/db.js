@@ -81,4 +81,7 @@ db.exec(`CREATE TABLE IF NOT EXISTS locations (
   id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, area TEXT, type TEXT,
   status TEXT, description TEXT, notable TEXT, image TEXT, sort INTEGER DEFAULT 100);`);
 
+db.exec(`CREATE TABLE IF NOT EXISTS tickets (
+  id INTEGER PRIMARY KEY, type TEXT, title TEXT NOT NULL, body TEXT, user_id INTEGER, author TEXT, created_at TEXT);`);
+
 module.exports = db;

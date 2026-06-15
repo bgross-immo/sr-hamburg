@@ -1,0 +1,53 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Tickets <span class="pill amber" style="vertical-align:middle">temporär</span></h1>
+<div class="sub">Bugs &amp; Wünsche zum Tool — werden gesammelt, in die Roadmap übernommen und dann hier gelöscht.</div>
+
+<div class="panel" style="margin-bottom:18px">
+  <div class="meta mono" style="color:var(--green);margin-bottom:8px">Neues Ticket</div>
+  <form method="post" action="/tickets">
+    <div class="row" style="gap:10px;align-items:flex-end;flex-wrap:wrap">
+      <div>
+        <label style="display:block;font-size:11px;color:var(--dim);font-family:var(--mono)">Art</label>
+        <select name="type"><option value="bug">Bug</option><option value="wunsch">Wunsch</option></select>
+      </div>
+      <div style="flex:1;min-width:220px">
+        <label style="display:block;font-size:11px;color:var(--dim);font-family:var(--mono)">Titel</label>
+        <input name="title" placeholder="Kurz &amp; knapp" style="width:100%">
+      </div>
+    </div>
+    <label style="display:block;font-size:11px;color:var(--dim);font-family:var(--mono);margin-top:8px">Beschreibung</label>
+    <textarea name="body" rows="3" placeholder="Was ist passiert / was wünschst du dir?" style="width:100%"></textarea>
+    <div style="margin-top:10px"><button class="btn">Ticket anlegen</button></div>
+  </form>
+</div>
+
+<% if(user.role==='sl' && tickets.length){ %>
+<div class="row" style="gap:12px;align-items:center;margin-bottom:14px">
+  <a class="btn ghost" href="/tickets/export.md">Alle als Markdown exportieren</a>
+  <form method="post" action="/tickets/clear" onsubmit="return confirm('Wirklich ALLE Tickets löschen? (vorher exportieren!)')">
+    <button class="btn red">Alle Tickets löschen</button>
+  </form>
+  <span class="lv-count"><%= tickets.length %> offen</span>
+</div>
+<% } %>
+
+<% if(!tickets.length){ %>
+  <div class="panel"><p class="dim" style="margin:0">Noch keine Tickets. Leg oben eins an.</p></div>
+<% } %>
+
+<% tickets.forEach(t=>{ %>
+  <div class="panel" style="margin-bottom:10px">
+    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+      <span class="pill <%= (t.type==='wunsch')?'green':'red' %>"><%= (t.type==='wunsch')?'Wunsch':'Bug' %></span>
+      <strong style="font-size:15px;color:#fff"><%= t.title %></strong>
+      <span class="dim mono" style="font-size:11px;margin-left:auto"><%= t.authorName || t.author || '—' %> · <%= (t.created_at||'').slice(0,10) %></span>
+    </div>
+    <% if(t.body){ %><div style="white-space:pre-line;margin-top:8px;font-size:14px"><%= t.body %></div><% } %>
+    <% if(user.role==='sl' || t.user_id===user.id){ %>
+      <form method="post" action="/tickets/<%= t.id %>/delete" onsubmit="return confirm('Ticket löschen?')" style="margin-top:8px">
+        <button class="btn ghost" style="padding:5px 12px;font-size:11px">Löschen</button>
+      </form>
+    <% } %>
+  </div>
+<% }); %>
+<%- include('partials/footer') %>
