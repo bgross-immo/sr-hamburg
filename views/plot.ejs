@@ -10,20 +10,23 @@
 <% }); %></div><% } %>
 
 <% if(user.role==='sl'){ %>
-<details class="panel" style="margin-top:16px"><summary class="meta mono" style="color:var(--green);cursor:pointer">SL · Plotstrang bearbeiten</summary>
-  <form method="post" action="/plots/<%= plot.slug %>" style="margin-top:10px">
-    <label>Titel</label><input name="title" value="<%= plot.title %>">
-    <label>Freitext (SL — z. B. roter Faden, Hintergründe, offene Fäden)</label><textarea name="body" rows="6"><%= plot.body||'' %></textarea>
-    <div style="margin-top:10px"><button class="btn">Speichern</button></div>
+<div class="panel" style="margin-top:16px">
+  <div class="meta mono" style="color:var(--green);margin-bottom:10px">SL · Text &amp; Bilder</div>
+  <form method="post" action="/plots/<%= plot.slug %>">
+    <label>Titel</label><input name="title" value="<%= plot.title %>" style="width:100%">
+    <label style="display:block;margin-top:8px">Freitext (roter Faden, Hintergründe, offene Fäden)</label>
+    <textarea name="body" rows="6" style="width:100%" placeholder="Frei beschreibbar…"><%= plot.body||'' %></textarea>
+    <div style="margin-top:10px"><button class="btn">Text speichern</button></div>
   </form>
-  <form method="post" action="/plots/<%= plot.slug %>/images" enctype="multipart/form-data" style="margin-top:12px">
-    <label>Zusätzliche Bilder hochladen</label><input type="file" name="images" accept="image/*" multiple>
-    <div style="margin-top:8px"><button class="btn ghost">Bilder hinzufügen</button></div>
+  <form method="post" action="/plots/<%= plot.slug %>/images" enctype="multipart/form-data" style="margin-top:14px;border-top:1px solid var(--line2);padding-top:14px">
+    <label>Zusätzliche Bilder hochladen (mehrere möglich)</label>
+    <input type="file" name="images" accept="image/*" multiple>
+    <div style="margin-top:8px"><button class="btn ghost">Bilder hochladen</button></div>
   </form>
-  <form method="post" action="/plots/<%= plot.slug %>/delete" onsubmit="return confirm('Plotstrang löschen? Verknüpfungen gehen verloren — Runs/Kontakte selbst bleiben.')" style="margin-top:12px">
+  <form method="post" action="/plots/<%= plot.slug %>/delete" onsubmit="return confirm('Plotstrang löschen? Verknüpfungen gehen verloren — Runs/Kontakte selbst bleiben.')" style="margin-top:14px;border-top:1px solid var(--line2);padding-top:14px">
     <button class="btn red">Plotstrang löschen</button>
   </form>
-</details>
+</div>
 <% } %>
 
 <%
