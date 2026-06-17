@@ -183,12 +183,20 @@ details.panel summary::-webkit-details-marker{display:none}
 .lvtoggle button{background:transparent;color:var(--green);border:0;padding:9px 13px;cursor:pointer;font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
 .lvtoggle button.active{background:var(--green);color:#04130a;font-weight:700}
 .lv-count{font-family:var(--mono);font-size:11px;color:var(--dim)}
-/* Listenansicht */
+/* Listenansicht: ausgerichtete Spalten */
 .grid.listview{display:block}
-.grid.listview .card{display:flex;align-items:center;gap:14px;margin-bottom:8px}
-.grid.listview .thumb,.grid.listview .avatar{width:60px;height:60px;flex:0 0 auto;border:0;border-bottom:0;border-radius:6px}
-.grid.listview .card .body{padding:10px 6px;display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 14px;flex:1}
-.grid.listview .card h3{margin:0;font-size:14px;min-width:150px}
-.grid.listview .card .meta{margin:0}
-.grid.listview .card p{margin:0;flex:1;min-width:120px;max-width:460px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.grid.listview .card>div[style]{margin-top:0 !important}
+.grid.listview .card{display:block;margin-bottom:6px}
+.grid.listview .thumb,.grid.listview .avatar{display:none}
+.grid.listview .card .body{display:grid;grid-template-columns:minmax(150px,1.3fr) minmax(110px,.9fr) minmax(120px,1fr) minmax(170px,1.7fr);align-items:center;gap:4px 18px;padding:11px 14px}
+.grid.listview .card .body>*{margin:0 !important}
+.grid.listview .card h3{font-size:14px}
+.grid.listview .card .meta{font-size:11px}
+.grid.listview .card p{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;color:var(--dim)}
+.grid.listview .card .lcell{display:flex;align-items:center}
+@media(max-width:760px){.grid.listview .card .body{grid-template-columns:1fr 1fr;gap:2px 10px}}
+/* Stat-Boxen (Home) */
+.statrow{display:flex;gap:14px;flex-wrap:wrap;margin:16px 0}
+.stat{flex:1;min-width:150px;background:linear-gradient(180deg,var(--panel),var(--bg2));border:1px solid var(--line2);border-radius:8px;padding:14px 18px}
+.stat .num{font-family:var(--mono);font-size:30px;font-weight:700;color:var(--green);line-height:1}
+.stat .lbl{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-top:7px}
+.stat .lbl .dim{color:var(--dim);text-transform:none;letter-spacing:0}

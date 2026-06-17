@@ -17,7 +17,8 @@
      lock:'<rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
      shield:'<path d="M12 3l7 3v6c0 4-3 7-7 9-4-2-7-5-7-9V6z"/>',
      pin:'<path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-     bug:'<rect x="8" y="8" width="8" height="10" rx="4"/><path d="M12 5v3M5 10h3M16 10h3M5 15h3M16 15h3M9 6l1.5 2M15 6l-1.5 2"/>'
+     bug:'<rect x="8" y="8" width="8" height="10" rx="4"/><path d="M12 5v3M5 10h3M16 10h3M5 15h3M16 15h3M9 6l1.5 2M15 6l-1.5 2"/>',
+     thread:'<circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 7v10M6 12h10"/>'
    }; return I[n]||''; }
 %>
 <header class="top"><div class="topbar">
@@ -26,7 +27,7 @@
 </div></header>
 <div class="layout">
   <aside class="sidebar"><nav>
-    <% const items=[['/','Knoten','user' && 'home'],['/characters','Runner','user'],['/runs','Logbuch','run'],['/timeline','Zeitleiste','clock'],['/connections','Kontakte','net'],['/factions','Fraktionen','shield'],['/locations','Locations','pin'],['/maps','Karten','map'],['/notes','Notizen','note'],['/tickets','Tickets','bug']];
+    <% const items=[['/','Knoten','user' && 'home'],['/characters','Runner','user'],['/runs','Logbuch','run'],['/timeline','Zeitleiste','clock'],['/connections','Kontakte','net'],['/factions','Fraktionen','shield'],['/locations','Locations','pin'],['/plots','Plotstränge','thread'],['/maps','Karten','map'],['/notes','Notizen','note'],['/tickets','Tickets','bug']];
        items.forEach(it=>{ const act=(it[0]==='/'? path==='/' : path.indexOf(it[0])===0); %>
       <a href="<%= it[0] %>" class="<%= act?'active':'' %>"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><%- ic(it[2]) %></svg><%= it[1] %></a>
     <% }); %>

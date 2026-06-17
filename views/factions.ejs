@@ -20,8 +20,8 @@
      data-search="<%= [f.name,f.category,f.status,f.description].filter(Boolean).join(' ') %>">
     <% if(f.image){ var fs=f.image.indexOf('/static')===0?f.image:'/uploads/'+f.image; %><img class="thumb contain" src="<%= fs %>"><% } %>
     <div class="body"><h3><%= f.name %></h3><div class="meta"><%= f.category||'' %></div>
-      <% if(f.status){ %><div style="margin-top:6px"><span class="pill green"><%= f.status %></span></div><% } %>
-      <% if(f.description){ %><p><%= f.description.slice(0,110) %>…</p><% } %></div>
+      <div class="lcell"><% if(f.status){ %><span class="pill green"><%= f.status %></span><% } %></div>
+      <p><%= f.description ? f.description.slice(0,110)+'…' : '' %></p></div>
   </a>
 <% }); %>
 </div>

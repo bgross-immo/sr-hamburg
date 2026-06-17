@@ -55,6 +55,30 @@ app.use('/uploads', express.static(UPLOAD_DIR));
 
 const requireSL = (req, res, next) => res.locals.user && res.locals.user.role === 'sl' ? next() : res.status(403).render('error', { title: 'Zugriff verweigert', msg: 'Nur Spielleitung.' });
 
+// --- Run-Datum/Zeit Helfer (fuer Zeitstrahl & Plotstraenge) ---
+const TOD_ORDER = { morgens:0, mittags:1, abends:2, nachts:3 };
+function runSortKey(r){
+  const d = r.date_start || '';
+  const t = (TOD_ORDER[r.tod_start] != null) ? TOD_ORDER[r.tod_start] : 9;
+  const so = String(r.sort||0).padStart(6,'0');
+  return d ? ('0|'+d+'|'+t+'|'+so) : ('1|'+so);
+}
+function sortRunsByDate(rows){ return rows.slice().sort((a,b)=>{ const x=runSortKey(a),y=runSortKey(b); return x<y?-1:x>y?1:0; }); }
+function fmtDate(d){ if(!d) return ''; const p=String(d).split('-'); return p.length===3 ? (p[2]+'.'+p[1]+'.'+p[0]) : d; }
+function runWhen(r){
+  if(r && r.date_start){
+    let out = fmtDate(r.date_start) + (r.tod_start ? ' '+r.tod_start : '');
+    let end = '';
+    if(r.date_end && r.date_end !== r.date_start) end = fmtDate(r.date_end) + (r.tod_end ? ' '+r.tod_end : '');
+    else if(r.tod_end && r.tod_end !== r.tod_start) end = r.tod_end;
+    if(end) out += ' – ' + end;
+    return out;
+  }
+  return (r && r.date_played) || '';
+}
+function resolveEntities(slugs, table){ if(!slugs || !slugs.length) return []; const q=slugs.map(()=>'?').join(','); return db.prepare(`SELECT * FROM ${table} WHERE slug IN (${q})`).all(...slugs); }
+
+
 // ---------- AUTH ----------
 app.get('/login', (req, res) => {
   if (res.locals.user) return res.redirect('/');
@@ -209,15 +233,15 @@ app.post('/runs/:slug', loadRun, requireRunOwner, upload.array('images', 12), (r
   const r = req.run; let imgs = JSON.parse(r.images || '[]');
   for (const f of (req.files || [])) imgs.push(f.filename);
   const b = req.body;
-  db.prepare(`UPDATE runs SET title=?,number=?,date_played=?,participants=?,location=?,time_from=?,time_to=?,karma=?,nuyen=?,loot=?,new_connections=?,involved_connections=?,actors=?,summary=?,images=? WHERE slug=?`)
-    .run(b.title||r.title, b.number||'', b.date_played||'', b.participants||'', b.location||'', b.time_from||'', b.time_to||'', b.karma||'', b.nuyen||'', b.loot||'', b.new_connections||'', b.involved_connections||'', b.actors||'', b.summary||'', JSON.stringify(imgs), r.slug);
+  db.prepare(`UPDATE runs SET title=?,number=?,date_played=?,participants=?,location=?,time_from=?,time_to=?,karma=?,nuyen=?,loot=?,new_connections=?,involved_connections=?,actors=?,summary=?,date_start=?,tod_start=?,date_end=?,tod_end=?,images=? WHERE slug=?`)
+    .run(b.title||r.title, b.number||'', b.date_played||'', b.participants||'', b.location||'', b.time_from||'', b.time_to||'', b.karma||'', b.nuyen||'', b.loot||'', b.new_connections||'', b.involved_connections||'', b.actors||'', b.summary||'', b.date_start||'', b.tod_start||'', b.date_end||'', b.tod_end||'', JSON.stringify(imgs), r.slug);
   res.redirect('/runs/' + r.slug);
 });
 
 // ---------- TIMELINE ----------
 app.get('/timeline', (req, res) => {
-  const rows = db.prepare('SELECT * FROM timeline ORDER BY sort').all();
-  res.render('timeline', { title: 'Zeitleiste', rows });
+  const runs = sortRunsByDate(db.prepare('SELECT * FROM runs').all());
+  res.render('timeline', { title: 'Zeitleiste', runs, runWhen });
 });
 
 // ---------- NOTES ----------
@@ -268,6 +292,74 @@ app.get('/tickets/export.md', requireSL, (req, res) => {
 app.post('/tickets/clear', requireSL, (req, res) => {
   db.prepare('DELETE FROM tickets').run();
   res.redirect('/tickets');
+});
+
+// ---------- PLOTSTRAENGE (frei benannte Labels; nur SL pflegt) ----------
+const ENT = { run:'runs', connection:'connections', faction:'factions', location:'locations' };
+app.get('/plots', (req, res) => {
+  const plots = db.prepare('SELECT * FROM plots ORDER BY sort, title').all();
+  for (const p of plots) {
+    p.linkCount = db.prepare('SELECT COUNT(*) c FROM plot_links WHERE plot_slug=?').get(p.slug).c;
+    p.imageList = JSON.parse(p.images || '[]');
+  }
+  res.render('plots', { title: 'Plotstränge', plots });
+});
+app.post('/plots', requireSL, (req, res) => {
+  const title = (req.body.title || '').trim();
+  if (!title) return res.redirect('/plots');
+  let slug = title.toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || ('strang-'+Date.now());
+  let base=slug, n=2; while (db.prepare('SELECT 1 FROM plots WHERE slug=?').get(slug)) slug = base+'-'+(n++);
+  const mx = (db.prepare('SELECT MAX(sort) m FROM plots').get().m||0)+10;
+  db.prepare('INSERT INTO plots (slug,title,owner,body,images,sort,created_at) VALUES (?,?,?,?,?,?,?)')
+    .run(slug, title, res.locals.user.display_name||res.locals.user.username, '', '[]', mx, new Date().toISOString());
+  res.redirect('/plots/'+slug);
+});
+function loadPlot(req,res,next){ req.plot = db.prepare('SELECT * FROM plots WHERE slug=?').get(req.params.slug); if(!req.plot) return res.status(404).render('error',{title:'Nicht gefunden',msg:'Plotstrang unbekannt.'}); next(); }
+app.get('/plots/:slug', loadPlot, (req, res) => {
+  const plot = req.plot; plot.imageList = JSON.parse(plot.images || '[]');
+  const links = db.prepare('SELECT * FROM plot_links WHERE plot_slug=?').all(plot.slug);
+  const pick = t => links.filter(l => l.entity_type===t).map(l => l.entity_slug);
+  let runs = resolveEntities(pick('run'), 'runs'); runs = sortRunsByDate(runs);
+  const conns = resolveEntities(pick('connection'), 'connections');
+  const facs  = resolveEntities(pick('faction'), 'factions');
+  const locs  = resolveEntities(pick('location'), 'locations');
+  const all = {
+    run: db.prepare('SELECT slug,title name FROM runs ORDER BY title').all(),
+    connection: db.prepare('SELECT slug,name FROM connections ORDER BY name').all(),
+    faction: db.prepare('SELECT slug,name FROM factions ORDER BY name').all(),
+    location: db.prepare('SELECT slug,name FROM locations ORDER BY name').all(),
+  };
+  const linked = { run:pick('run'), connection:pick('connection'), faction:pick('faction'), location:pick('location') };
+  res.render('plot', { title: plot.title, plot, runs, conns, facs, locs, runWhen, all, linked });
+});
+app.post('/plots/:slug', loadPlot, requireSL, (req, res) => {
+  db.prepare('UPDATE plots SET title=?, body=? WHERE slug=?').run((req.body.title||req.plot.title).trim(), req.body.body||'', req.plot.slug);
+  res.redirect('/plots/'+req.plot.slug);
+});
+app.post('/plots/:slug/images', loadPlot, requireSL, upload.array('images', 12), (req, res) => {
+  let imgs = JSON.parse(req.plot.images || '[]');
+  for (const f of (req.files || [])) imgs.push(f.filename);
+  db.prepare('UPDATE plots SET images=? WHERE slug=?').run(JSON.stringify(imgs), req.plot.slug);
+  res.redirect('/plots/'+req.plot.slug);
+});
+app.post('/plots/:slug/image-del', loadPlot, requireSL, (req, res) => {
+  let imgs = JSON.parse(req.plot.images || '[]').filter(i => i !== req.body.img);
+  db.prepare('UPDATE plots SET images=? WHERE slug=?').run(JSON.stringify(imgs), req.plot.slug);
+  res.redirect('/plots/'+req.plot.slug);
+});
+app.post('/plots/:slug/link', loadPlot, requireSL, (req, res) => {
+  const t = req.body.entity_type, sl = (req.body.entity_slug||'').trim();
+  if (ENT[t] && sl) db.prepare('INSERT OR IGNORE INTO plot_links (plot_slug,entity_type,entity_slug) VALUES (?,?,?)').run(req.plot.slug, t, sl);
+  res.redirect('/plots/'+req.plot.slug);
+});
+app.post('/plots/:slug/unlink', loadPlot, requireSL, (req, res) => {
+  db.prepare('DELETE FROM plot_links WHERE plot_slug=? AND entity_type=? AND entity_slug=?').run(req.plot.slug, req.body.entity_type, req.body.entity_slug);
+  res.redirect('/plots/'+req.plot.slug);
+});
+app.post('/plots/:slug/delete', loadPlot, requireSL, (req, res) => {
+  db.prepare('DELETE FROM plot_links WHERE plot_slug=?').run(req.plot.slug);
+  db.prepare('DELETE FROM plots WHERE slug=?').run(req.plot.slug);
+  res.redirect('/plots');
 });
 app.post('/notes/:id', (req, res) => {
   const n = db.prepare('SELECT * FROM notes WHERE id=?').get(req.params.id);

@@ -58,7 +58,8 @@ db.exec(`CREATE TABLE IF NOT EXISTS maps (
 try {
   const rc = db.prepare("PRAGMA table_info(runs)").all().map(c => c.name);
   const add = { owner_id:'INTEGER', location:'TEXT', time_from:'TEXT', time_to:'TEXT',
-    karma:'TEXT', nuyen:'TEXT', loot:'TEXT', new_connections:'TEXT', involved_connections:'TEXT', actors:'TEXT' };
+    karma:'TEXT', nuyen:'TEXT', loot:'TEXT', new_connections:'TEXT', involved_connections:'TEXT', actors:'TEXT',
+    date_start:'TEXT', tod_start:'TEXT', date_end:'TEXT', tod_end:'TEXT' };
   for (const [c,t] of Object.entries(add)) if (!rc.includes(c)) db.exec(`ALTER TABLE runs ADD COLUMN ${c} ${t}`);
 } catch (e) { console.error('run migration', e); }
 
@@ -81,6 +82,11 @@ db.exec(`CREATE TABLE IF NOT EXISTS locations (
   id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT NOT NULL, area TEXT, type TEXT,
   status TEXT, description TEXT, notable TEXT, image TEXT, sort INTEGER DEFAULT 100);`);
 
+db.exec(`CREATE TABLE IF NOT EXISTS plots (
+  id INTEGER PRIMARY KEY, slug TEXT UNIQUE NOT NULL, title TEXT NOT NULL, owner TEXT, body TEXT, images TEXT, sort INTEGER DEFAULT 100, created_at TEXT);`);
+db.exec(`CREATE TABLE IF NOT EXISTS plot_links (
+  id INTEGER PRIMARY KEY, plot_slug TEXT NOT NULL, entity_type TEXT NOT NULL, entity_slug TEXT NOT NULL,
+  UNIQUE(plot_slug, entity_type, entity_slug));`);
 db.exec(`CREATE TABLE IF NOT EXISTS tickets (
   id INTEGER PRIMARY KEY, type TEXT, title TEXT NOT NULL, body TEXT, user_id INTEGER, author TEXT, created_at TEXT);`);
 

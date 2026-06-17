@@ -6,6 +6,8 @@
   <dl class="kv">
     <dt>Teilnehmer</dt><dd><%= r.participants||'—' %></dd>
     <dt>Ort</dt><dd><%= r.location||'—' %></dd>
+  <% function fmtd(d){ if(!d) return ''; var p=String(d).split('-'); return p.length===3?p[2]+'.'+p[1]+'.'+p[0]:d; } var ws = r.date_start ? (fmtd(r.date_start)+(r.tod_start?' '+r.tod_start:'')+((r.date_end&&r.date_end!==r.date_start)?' – '+fmtd(r.date_end)+(r.tod_end?' '+r.tod_end:''):(r.tod_end&&r.tod_end!==r.tod_start?' – '+r.tod_end:''))) : ''; %>
+    <% if(ws){ %><dt>Datum</dt><dd><%= ws %></dd><% } %>
     <dt>Zeitraum</dt><dd><%= [r.time_from,r.time_to].filter(Boolean).join('  –  ') || r.date_played || '—' %></dd>
     <dt>Karma</dt><dd><%= r.karma||'—' %></dd>
     <dt>Nuyen / Geld</dt><dd><%= r.nuyen||'—' %></dd>

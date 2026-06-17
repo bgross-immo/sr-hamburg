@@ -1,0 +1,59 @@
+<%- include('partials/header',{title}) %>
+<div class="dossier-tag">PLOTSTRANG</div>
+<h1 style="margin-top:4px"><%= plot.title %></h1>
+<div class="sub"><%= plot.owner ? 'angelegt von '+plot.owner : '' %></div>
+
+<% if(plot.body){ %><div class="panel"><div style="white-space:pre-line;font-size:14.5px"><%= plot.body %></div></div><% } %>
+<% if(plot.imageList.length){ %><div class="gallery" style="margin-top:12px"><% plot.imageList.forEach(i=>{ %>
+  <div style="position:relative"><a href="/uploads/<%= i %>" target="_blank"><img src="/uploads/<%= i %>"></a>
+  <% if(user.role==='sl'){ %><form method="post" action="/plots/<%= plot.slug %>/image-del" style="position:absolute;top:4px;right:4px"><input type="hidden" name="img" value="<%= i %>"><button class="btn red" style="padding:2px 7px;font-size:10px">×</button></form><% } %></div>
+<% }); %></div><% } %>
+
+<% if(user.role==='sl'){ %>
+<details class="panel" style="margin-top:16px"><summary class="meta mono" style="color:var(--green);cursor:pointer">SL · Plotstrang bearbeiten</summary>
+  <form method="post" action="/plots/<%= plot.slug %>" style="margin-top:10px">
+    <label>Titel</label><input name="title" value="<%= plot.title %>">
+    <label>Freitext (SL — z. B. roter Faden, Hintergründe, offene Fäden)</label><textarea name="body" rows="6"><%= plot.body||'' %></textarea>
+    <div style="margin-top:10px"><button class="btn">Speichern</button></div>
+  </form>
+  <form method="post" action="/plots/<%= plot.slug %>/images" enctype="multipart/form-data" style="margin-top:12px">
+    <label>Zusätzliche Bilder hochladen</label><input type="file" name="images" accept="image/*" multiple>
+    <div style="margin-top:8px"><button class="btn ghost">Bilder hinzufügen</button></div>
+  </form>
+  <form method="post" action="/plots/<%= plot.slug %>/delete" onsubmit="return confirm('Plotstrang löschen? Verknüpfungen gehen verloren — Runs/Kontakte selbst bleiben.')" style="margin-top:12px">
+    <button class="btn red">Plotstrang löschen</button>
+  </form>
+</details>
+<% } %>
+
+<%
+  var sections = [
+    ['run','Runs','/runs/', runs],
+    ['connection','Kontakte','/connections/', conns],
+    ['faction','Fraktionen','/factions/', facs],
+    ['location','Locations','/locations/', locs]
+  ];
+%>
+<% sections.forEach(function(sec){ var type=sec[0], label=sec[1], base=sec[2], items=sec[3]; %>
+  <h2><%= label %></h2>
+  <% if(items.length){ %>
+    <div class="pillrow">
+    <% items.forEach(function(it){ var nm = (type==='run') ? ((it.number?it.number+' · ':'')+it.title) : it.name; %>
+      <span class="pill green" style="display:inline-flex;align-items:center;gap:7px">
+        <a href="<%= base %><%= it.slug %>" style="color:inherit;text-decoration:none"><%= nm %><% if(type==='run' && runWhen(it)){ %> <span class="dim" style="font-size:10px">· <%= runWhen(it) %></span><% } %></a>
+        <% if(user.role==='sl'){ %><form method="post" action="/plots/<%= plot.slug %>/unlink" style="display:inline"><input type="hidden" name="entity_type" value="<%= type %>"><input type="hidden" name="entity_slug" value="<%= it.slug %>"><button title="entfernen" style="background:none;border:0;color:var(--red);cursor:pointer;font-size:13px;padding:0;line-height:1">×</button></form><% } %>
+      </span>
+    <% }); %>
+    </div>
+  <% } else { %><p class="dim" style="margin:6px 0">— nichts zugeordnet —</p><% } %>
+  <% if(user.role==='sl'){ var avail = all[type].filter(function(o){ return linked[type].indexOf(o.slug)<0; }); if(avail.length){ %>
+    <form method="post" action="/plots/<%= plot.slug %>/link" class="row" style="margin-top:8px;max-width:520px">
+      <input type="hidden" name="entity_type" value="<%= type %>">
+      <select name="entity_slug" style="flex:1"><% avail.forEach(function(o){ %><option value="<%= o.slug %>"><%= o.name %></option><% }); %></select>
+      <button class="btn ghost"><%= label.replace(/e?n$/,'') %> hinzufügen</button>
+    </form>
+  <% } } %>
+<% }); %>
+
+<div style="margin-top:22px"><a href="/plots">&larr; Alle Plotstränge</a></div>
+<%- include('partials/footer') %>

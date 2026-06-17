@@ -4,6 +4,11 @@
   <h1>Schattennetz Hamburg</h1>
   <p>Dossiers, Logbuch und Kontakte der Hamburger Runde. <%= charCount %> aktive Runner · <%= runs.length %> Runs im Archiv · Gruppenkarma <%= groupKarma %> (Start <%= groupKarmaStart %>).</p>
 </div></div>
+<div class="statrow">
+  <div class="stat"><div class="num"><%= groupKarma %></div><div class="lbl">Gruppenkarma <span class="dim">(Start <%= groupKarmaStart %>)</span></div></div>
+  <div class="stat"><div class="num"><%= charCount %></div><div class="lbl">Aktive Runner</div></div>
+  <div class="stat"><div class="num"><%= runs.length %></div><div class="lbl">Runs im Archiv</div></div>
+</div>
 <div class="shadowtalk"><span class="who">&gt; Klaas:</span> Was hier drinsteht, bleibt hier drin. Wer plappert, schwimmt. Willkommen an Bord.</div>
 
 <h2>Bereiche</h2>
@@ -12,6 +17,7 @@
   <a class="tile" href="/runs"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 3v18M12 8h5M12 12h5"/></svg><div class="meta">Tagebuch</div><h3>Logbuch</h3><p>Abgeschlossene Runs mit Bildern und Zusammenfassung.</p></a>
   <a class="tile" href="/timeline"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div class="meta">Chronik</div><h3>Zeitleiste</h3><p>Was bisher geschah — in Reihenfolge.</p></a>
   <a class="tile" href="/connections"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="9" r="2.5"/><circle cx="9" cy="18" r="2.5"/><path d="M8 7l8 1.5M8 16l8-6"/></svg><div class="meta">Netzwerk</div><h3>Kontakte</h3><p>NSCs mit Ort, Vorlieben, Status und Historie.</p></a>
+  <a class="tile" href="/plots"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 7v10M6 12h10"/></svg><div class="meta">Stränge</div><h3>Plotstränge</h3><p>Runs, Kontakte, Fraktionen &amp; Orte nach Handlungsstrang gebündelt.</p></a>
   <a class="tile" href="/notes"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 4h14v16l-4-3H5z"/><path d="M8 9h8M8 13h5"/></svg><div class="meta">Privat</div><h3>Notizen</h3><p>Dein Notizblock — optional für die Runde teilbar.</p></a>
   <% if(user.role==='sl'){ %>
   <a class="tile sl" href="/sl"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><div class="meta">Restricted</div><h3>SL // HDL</h3><p>Hintergrundebene — nur Spielleitung.</p></a>

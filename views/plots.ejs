@@ -1,0 +1,23 @@
+<%- include('partials/header',{title}) %>
+<h1><span class="pre">//</span> Plotstränge</h1>
+<div class="sub">Handlungsstränge — bündeln Runs, Kontakte, Fraktionen und Orte</div>
+<% if(user.role==='sl'){ %>
+<div class="panel" style="margin-bottom:18px">
+  <div class="meta mono" style="color:var(--green);margin-bottom:8px">SL · Neuen Plotstrang anlegen</div>
+  <form method="post" action="/plots" class="row"><div style="flex:1"><input name="title" placeholder="Name des Strangs (z. B. „Das Herz des Leviathans“)"></div><button class="btn">Anlegen</button></form>
+</div>
+<% } %>
+<% if(!plots.length){ %><div class="panel"><p class="dim" style="margin:0">Noch keine Plotstränge angelegt.</p></div><% } %>
+<div class="grid cols3">
+<% plots.forEach(pl=>{ %>
+  <a class="card" href="/plots/<%= pl.slug %>">
+    <% if(pl.imageList[0]){ %><img class="thumb contain" src="/uploads/<%= pl.imageList[0] %>"><% } %>
+    <div class="body"><h3><%= pl.title %></h3>
+      <div class="meta"><%= pl.owner||'' %></div>
+      <p><%= pl.body ? pl.body.slice(0,110)+'…' : 'Noch keine Beschreibung.' %></p>
+      <div style="margin-top:8px"><span class="pill green"><%= pl.linkCount %> Einträge</span></div>
+    </div>
+  </a>
+<% }); %>
+</div>
+<%- include('partials/footer') %>
